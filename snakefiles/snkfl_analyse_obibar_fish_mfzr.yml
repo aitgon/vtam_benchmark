@@ -1,0 +1,114 @@
+import pathlib
+import os
+import subprocess
+import shlex
+import shutil
+
+rule all_analyse_obibar_fish_mfzr:
+    input:
+        os.path.join(outdir, "obibar_fish/filters_mfzr/asv_table_final.tsv"),
+
+rule add_filters_fish_mfzr:
+    input:
+        os.path.join(outdir, "obibar_fish/filters_mfzr/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+        "metafiles/sample_types_fish.tsv",
+    output:
+        os.path.join(outdir, "obibar_fish/filters_mfzr/asv_table_final.tsv"),
+    params:
+        min_readcount=min_readcount,
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 1 -filter_codon_stop 1 -filter_chimera 1 -min_readcount {params.min_readcount}"""
+
+rule pool_replicates_fish_mfzr:
+    input:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi_taxa2.tsv"),
+        os.path.join(outdir, "obibar_fish/mfzr_metabarout/obibar_base.csv"),
+        "metafiles/sample_types_fish.tsv",
+    output:
+        os.path.join(outdir, "obibar_fish/filters_mfzr/asv_table_pooled_replicates.tsv"),
+    params:
+        "COI",
+    shell:
+        """perl scripts/pool_replicates.pl -asvseq {input[0]} -asvtable {input[1]} -out {output[0]} -sepseq '\t' -septable ';' -samples {input[2]} -marker {params[0]}"""
+
+rule metabaR_fish_mfzr_obi:
+    input:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/reads_obi.tsv"),
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi_taxa2.tsv"),
+        "metafiles/pcrs_adapted_to_metabaR_fish_mfzr.tsv",
+        "metafiles/samples_wo_control_fish.tsv",
+    output:
+        os.path.join(outdir, "obibar_fish/mfzr_metabarout/obibar_base.csv"),
+    shell:
+        """Rscript scripts/metabaR_fish_mfzr.R {input[0]} {input[1]} {input[2]} {input[3]} {output[0]}"""
+
+rule fish_mfzr_adapt_taxa_obi:
+    input:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi_taxa.tsv"),
+    output:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi_taxa2.tsv"),
+    shell:
+        """perl scripts/adapt_taxa.pl -in {input[0]} -out {output[0]}"""
+
+rule fish_mfzr_taxassign_obi:
+    input:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi.tsv"),
+        os.path.join(outdir, "vtam_db/taxonomy.tsv"),
+        os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
+    output:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+        os.path.join(outdir, "vtam_db/coi_blast_db"),
+        "coi_blast_db_20200420",
+    resources: db_fish=1
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule mfzr_make_merabaR_input_from_obi:
+    input:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/fish_mfzr_obi_results.fasta"),
+        "metafiles/sample_types_fish.tsv",
+    output:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/reads_obi.tsv"),
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi.tsv"),
+    shell:
+        """perl scripts/make_merabaR_input_from_obi.pl -obi_fasta {input[0]} -samples {input[1]} -reads {output[0]} -motus {output[1]}"""
+
+rule obibar_fish_mfzr:
+    input:
+        os.path.join(outdir, "obibar_fish/mfzr/obi_input.fasta"),
+    output:
+        os.path.join(outdir, "obibar_fish/mfzr_obiout/fish_mfzr_obi_results.fasta"),
+    params:
+        os.path.join(outdir, "obibar_fish/fish_mfzr"),
+    run:
+        shutil.rmtree(params[0] + '.obidms', ignore_errors=True)
+        #
+        cmd_str='obi import --fasta ' + input[0] + ' ' + params[0] + '/demultiplexed'
+        print(cmd_str)
+        subprocess.Popen(shlex.split(cmd_str)).communicate()
+        #
+        cmd_str='obi uniq -m sample ' + params[0] + '/demultiplexed ' + params[0] + '/dereplicated_sequences'
+        print(cmd_str)
+        subprocess.Popen(shlex.split(cmd_str)).communicate()
+        #
+        cmd_str='obi annotate -k COUNT -k MERGED_sample ' + params[0] + '/dereplicated_sequences ' + params[0] + '/cleaned_metadata_sequences'
+        print(cmd_str)
+        subprocess.Popen(shlex.split(cmd_str)).communicate()
+        #
+        cmd_str='''obi grep -p "sequence['COUNT']>=10" ''' + params[0] + '/cleaned_metadata_sequences ' + params[0] + '/denoised_sequences'
+        print(cmd_str)
+        subprocess.Popen(shlex.split(cmd_str)).communicate()
+        #
+        cmd_str='obi clean -s MERGED_sample -r 0.1 -H ' + params[0] + '/denoised_sequences ' + params[0] + '/cleaned_sequences'
+        print(cmd_str)
+        subprocess.Popen(shlex.split(cmd_str)).communicate()
+        #
+        pathlib.Path(os.path.dirname(output[0]), parents=True, exist_ok=True)
+        cmd_str='obi export --fasta-output ' + params[0] + '/cleaned_sequences'
+        print(cmd_str)
+        with open(output[0],"wb") as fout:
+            subprocess.Popen(shlex.split(cmd_str), stdout=fout).communicate()
+

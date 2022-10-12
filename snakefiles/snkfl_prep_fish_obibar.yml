@@ -1,0 +1,22 @@
+rule all_prep_fish_obibar:
+    input:
+        os.path.join(outdir, "obibar_fish/zfzr/obi_input.fasta"),
+        os.path.join(outdir, "obibar_fish/mfzr/obi_input.fasta"),
+
+rule make_obi_input_zfzr:
+    input:
+        os.path.join(outdir, "vtam_fish/sorted_zfzr/sortedinfo.tsv"),
+    output:
+        fasta=os.path.join(outdir, "obibar_fish/zfzr/obi_input.fasta"),
+    shell:
+        """perl scripts/make_obi_input.pl -sorted_info {input[0]} -dir $(dirname {input[0]}) -outdir $(dirname {output.fasta}) -fw_primer AGATATTGGAACWTTATATTTTATTTTTGG -rev_primer WACTAATCAATTWCCAAATCCTCC -experiment fish_zfzr"""
+
+rule make_obi_input_mfzr:
+    input:
+        os.path.join(outdir, "vtam_fish/sorted_mfzr/sortedinfo.tsv"),
+    output:
+        fasta=os.path.join(outdir, "obibar_fish/mfzr/obi_input.fasta"),
+    shell:
+        """perl scripts/make_obi_input.pl -sorted_info {input[0]} -dir $(dirname {input[0]}) -outdir $(dirname {output.fasta}) -fw_primer TCCACTAATCACAARGATATTGGTAC -rev_primer WACTAATCAATTWCCAAATCCTCC -experiment fish_mfzr"""
+
+

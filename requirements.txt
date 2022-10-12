@@ -1,0 +1,5 @@
+cython
+cutadapt
+snakemake
+obitools3
+vtam==0.2.0

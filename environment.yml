@@ -1,0 +1,11 @@
+name: vtam_benchmark
+channels:
+  - defaults
+  - bioconda
+dependencies:
+  - python=3.9
+  - bioconda::blast
+  - bioconda::vsearch
+  - pip
+  - pip:
+    - -r requirements.txt

@@ -1,0 +1,30 @@
+public_data_dir = config['public_data_dir']
+process_data_dir = config['process_data_dir']
+
+fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
+fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']
+fish_dic = dict(zip(fish_fastq_lst, fish_tgz_lst))
+
+rule all_dwnld_fish:
+    input:
+        expand(os.path.join(outdir, "data_fish", "{fish_fastq}.gz"), fish_fastq=fish_fastq_lst),
+
+rule untar_gz_data_fish:
+    input:
+        lambda w: os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream", fish_dic[w.fish_fastq]),
+    output:
+        os.path.join(outdir, "data_fish", "{fish_fastq}.gz"),
+    shell:
+        """tar zxvf {input[0]} --to-stdout |gzip -f >{output[0]}"""
+
+rule wget_fish:
+    output:
+        tgz=os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream/{fish_tgz}"),
+    params:
+        url="datadryad.org/stash/downloads/file_stream/{fish_tgz}",
+        public_data_dir_path=public_data_dir,
+    wildcard_constraints:
+        fish_tgz="628\d\d"
+    shell:
+        "wget -c -q -r {params.url} -P {params.public_data_dir_path}"
+

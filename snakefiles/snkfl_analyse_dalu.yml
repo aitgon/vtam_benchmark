@@ -1,0 +1,55 @@
+
+rule all_analyse_dalu:
+    input:
+        os.path.join(outdir, "dalu_fish/dalu_fish_final_taxa.tsv"),
+        os.path.join(outdir, "dalu_bat/dalu_bat_final_taxa.tsv"),
+
+rule taxassign_bat_dalu:
+    input:
+        os.path.join(outdir, "dalu_bat/filters/asv_table_final.tsv"),
+        os.path.join(outdir, "vtam_db/taxonomy.tsv"),
+        os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
+    output:
+        os.path.join(outdir, "dalu_bat/dalu_bat_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_bat/db_bat.sqlite"),
+        "coi_blast_db_20200420",
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir $(dirname {input[2]}) --blastdbname {params[1]} -v"""
+
+rule taxassign_fish_dalu:
+    input:
+        os.path.join(outdir, "dalu_fish/dalu_fish_final.tsv"),
+        os.path.join(outdir, "vtam_db/taxonomy.tsv"),
+        os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
+    output:
+        os.path.join(outdir, "dalu_fish/dalu_fish_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+        "coi_blast_db_20200420",
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir $(dirname {input[2]}) --blastdbname {params[1]} -v"""
+
+rule pool_marker_mfzr_zfzr:
+    input:
+        os.path.join(outdir, "dalu_fish/filters_mfzr/asv_table_final.tsv"),
+        os.path.join(outdir, "dalu_fish/filters_zfzr/asv_table_final.tsv"),
+    output:
+        os.path.join(outdir, "dalu_fish/dalu_fish_final.tsv"),
+    shell:
+        """perl scripts/pool_markers.pl -asv1 {input[0]} -asv2 {input[1]} -out {output[0]} -varid_col 0 -first_sample_col 2 -col_n_after_last_sample 3 -readcount 1"""
+
+include: "snkfl_analyse_dalu_zfzr.yml"
+include: "snkfl_analyse_dalu_mfzr.yml"
+include: "snkfl_analyse_dalu_bat.yml"
+
+rule sqlite_variants_zfzr:
+    input:
+        os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+

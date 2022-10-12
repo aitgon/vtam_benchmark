@@ -1,0 +1,33 @@
+import pathlib
+import os
+import subprocess
+import shlex
+import shutil
+
+rule all_analyse_obibar_fish:
+    input:
+        os.path.join(outdir, "obibar_fish/obibar_fish_final_taxa.tsv"),
+
+rule obibar_taxassign_fish:
+    input:
+        os.path.join(outdir, "obibar_fish/obibar_fish_final.tsv"),
+        os.path.join(outdir, "vtam_db/taxonomy.tsv"),
+        os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
+    output:
+        os.path.join(outdir, "obibar_fish/obibar_fish_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+        os.path.join(outdir, "vtam_db/coi_blast_db"),
+        "coi_blast_db_20200420",
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule pool_markers_fish:
+    input:
+        os.path.join(outdir, "obibar_fish/filters_mfzr/asv_table_final.tsv"),
+        os.path.join(outdir, "obibar_fish/filters_zfzr/asv_table_final.tsv"),
+    output:
+        os.path.join(outdir, "obibar_fish/obibar_fish_final.tsv"),
+    shell:
+        """perl scripts/pool_markers.pl -asv1 {input[0]} -asv2 {input[1]} -out {output[0]} -varid_col 0 -first_sample_col 2 -col_n_after_last_sample 3 -readcount 1"""
+

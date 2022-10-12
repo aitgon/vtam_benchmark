@@ -1,0 +1,17 @@
+
+rule all_analyse_fish_vtam_zfzr:
+    input:
+        os.path.join(outdir, "vtam_fish/asvtable_optimized_zfzr.tsv"),
+
+rule filter2_zfzr:
+    input:
+        os.path.join(outdir, "vtam_fish/sorted_zfzr/sortedinfo.tsv"),
+        "metafiles/params_filter_fish_zfzr.yml",
+    output:
+        os.path.join(outdir, "vtam_fish/asvtable_optimized_zfzr.tsv"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+    resources: db_fish=1
+    shell:
+        """vtam filter --db {params[0]} --sortedinfo {input[0]} --sorteddir $(dirname {input[0]}) --asvtable {output[0]} -v --params {input[1]} --lfn_variant_replicate"""
+
