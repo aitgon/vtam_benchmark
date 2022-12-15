@@ -44,20 +44,18 @@ rule blastn_fish_mfzr:
         os.path.join(outdir, "dalu_fish/dada_mfzr/asv.fasta.nsq"),
     output:
         os.path.join(outdir, "dalu_fish/dada_mfzr/asv_auto_blast.tsv"),
-    run:
-        cmd="blastn -db " + input[0] + " -outfmt '6 qseqid sseqid pident' -out " + output[0] + " -qcov_hsp_perc 80 -perc_identity 80 -query " + input[0]
-        print(cmd)
-        subprocess.Popen(shlex.split(cmd)).communicate()
+    shell:
+        """blastn -db {input[0]} -outfmt '6 qseqid sseqid pident' -out {output[0]} -qcov_hsp_perc 80 -perc_identity 80 -query {input[0]}"""
 
 rule makeblastdb_fish_mfzr:
     input:
         os.path.join(outdir, "dalu_fish/dada_mfzr/asv.fasta"),
     output:
         os.path.join(outdir, "dalu_fish/dada_mfzr/asv.fasta.nsq"),
-    run:
-        cmd="makeblastdb -in " + input[0] + " -parse_seqids -dbtype nucl -out " + (output[0])[:-4]
-        print(cmd)
-        subprocess.Popen(shlex.split(cmd)).communicate()
+    params:
+        os.path.join(outdir, "dalu_fish/dada_mfzr/asv.fasta"),
+    shell:
+        """makeblastdb -in {input[0]} -parse_seqids -dbtype nucl -out {params[0]}"""
 
 
 rule dada_mfzr:

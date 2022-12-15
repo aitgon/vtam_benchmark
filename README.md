@@ -357,4 +357,4 @@ mamba create -c conda-forge -c bioconda -n snakemake snakemake
 conda activate snakemake
 
 Run benchmark
-snakemake -p -c 15 -s snkfl_all.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --rerun-incomplete --use-singularity --singularity-args "\-u"
+snakemake -p -c 1 -s snkfl_all.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --rerun-incomplete --use-singularity

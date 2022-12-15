@@ -1,5 +1,6 @@
 public_data_dir = config['public_data_dir']
 process_data_dir = config['process_data_dir']
+outdir = config['outdir']
 
 bat_zip_lst = ['64342', '64342', '64341', '64340', '64339']
 bat_fastq_lst = ['AFOU00048-0201_S1199_L001_R1_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
@@ -26,5 +27,5 @@ rule wget_bat:
     wildcard_constraints:
         bat_zip="643\d\d"
     shell:
-        "wget -nc -q -r {params.url} -P {params.public_data_dir_path}"
+        "wget -c -q -r {params.url} -P {params.public_data_dir_path}"
 
