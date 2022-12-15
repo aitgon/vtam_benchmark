@@ -82,10 +82,10 @@ rule obibar_fish_mfzr:
     output:
         os.path.join(outdir, "obibar_fish/mfzr_obi_export/fish_mfzr_obi_results.fasta"),
     params:
-        os.path.join(outdir, "obibar_fish/obi_workdir_mfzr"),
+        os.path.join(outdir, "obibar_fish/obi_db_mfzr"),
     shell:
         """
-rm -rf $(dirname {params[0]})
+rm -rf {params[0]}.obidms
 obi import --fasta {input[0]} {params[0]}/demultiplexed
 obi uniq -m sample {params[0]}/demultiplexed {params[0]}/dereplicated_sequences
 obi annotate -k COUNT -k MERGED_sample {params[0]}/dereplicated_sequences {params[0]}/cleaned_metadata_sequences

@@ -103,9 +103,10 @@ rule obibar_bat:
     output:
         os.path.join(outdir, "obibar_bat/obi/bat_obi_results.fasta"),
     params:
-        os.path.join(outdir, "obibar_bat/obi_workdir_bat"),
+        os.path.join(outdir, "obibar_bat/obi_db_bat"),
     shell:
         """
+rm -rf {params[0]}.obidms
 obi import --fasta {input[0]} {params[0]}/demultiplexed
 obi uniq -m sample {params[0]}/demultiplexed {params[0]}/dereplicated_sequences
 obi annotate -k COUNT -k MERGED_sample {params[0]}/dereplicated_sequences {params[0]}/cleaned_metadata_sequences
