@@ -112,7 +112,7 @@ obi uniq -m sample {params[0]}/demultiplexed {params[0]}/dereplicated_sequences
 obi annotate -k COUNT -k MERGED_sample {params[0]}/dereplicated_sequences {params[0]}/cleaned_metadata_sequences
 obi grep -p "sequence['COUNT']>=10" {params[0]}/cleaned_metadata_sequences {params[0]}/denoised_sequences
 obi clean -s MERGED_sample -r 0.1 -H {params[0]}/denoised_sequences {params[0]}/cleaned_sequences
-obi export --fasta-output {params[0]}/cleaned_sequences
+obi export --fasta-output {params[0]}/cleaned_sequences >{output[0]}
 """
 
 rule OBIbaR:
