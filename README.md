@@ -11,7 +11,7 @@ This is the code to reproduce the benchmark analysis of metabarcoding software p
 Run
 
 ~~~
-snakemake -p -c 15 -s snkfl_all.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out_min_readcount_0 --resources db_fish=1 db_bat=1
+snakemake -p -c 15 -s snkfl_all.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 --resources db_fish=1 db_bat=1
 ~~~
 
 You must repeat the previous command with min read counts 10, 20 and 60.
@@ -339,3 +339,22 @@ Zeale, M. R. K., Butlin, R. K., Barker, G. L. A., Lees, D. C., & Jones, G. (2011
 
 Zinger, L., Lionnet, C., Benoiston, A.-S., Donald, J., Mercier, C., & Boyer, F. (2020). metabaR: An R package for the evaluation and improvement of DNA metabarcoding data quality. *BioRxiv*, 2020.08.28.271817. https://doi.org/10.1101/2020.08.28.271817
 
+git clone git@github.com:aitgon/vtam_benchmark.git
+cd vtam_benchmark
+
+Prepare output and data directories
+mkdir -p out
+mkdir -p "${HOME}"/Software/process
+mkdir -p "${HOME}"/Software/public
+
+Build singularity container
+sudo /home/gonzalez/Software/singularity_3.5.1/bin/singularity build out/vtam_benchmark.sif vtam_benchmark.def
+
+Install and enter snakemake as describe here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
+conda install -n base -c conda-forge mamba
+conda activate base
+mamba create -c conda-forge -c bioconda -n snakemake snakemake
+conda activate snakemake
+
+Run benchmark
+snakemake -p -c 15 -s snkfl_all.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --rerun-incomplete --use-singularity --singularity-args "\-u"
