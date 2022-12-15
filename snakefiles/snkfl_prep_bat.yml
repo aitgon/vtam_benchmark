@@ -4,7 +4,6 @@ bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
 
 rule all_prep_bat:
     input:
-        os.path.join(outdir, "obibar_bat/obi_input.fasta"),
         os.path.join(outdir, "dalu_bat/fastq/COI-T_F-3_rv.fastq.gz"),
         os.path.join(outdir, "vtam_bat/fasta/COI-T_F-3.fasta.gz"),
         os.path.join(outdir, "vtam_bat/fasta/sortedinfo.tsv"),
@@ -18,14 +17,6 @@ rule merge_fastq:
         '_fw.fastq.gz',
     shell:
         """perl scripts/merge_fastq.pl -dir $(dirname {input[0]}) -outdir $(dirname {output[0]}) -motif {params[0]}"""
-
-rule OBIbaR:
-    input:
-        os.path.join(outdir, "vtam_bat/fasta/sortedinfo.tsv"),
-    output:
-        os.path.join(outdir, "obibar_bat/obi_input.fasta"),
-    shell:
-        """perl scripts/make_obi_input.pl -dir $(dirname {input[0]}) -outdir $(dirname {output[0]}) -sorted_info {input[0]} -fw_primer ATTCHACDAAYCAYAARGAYATYGG -rev_primer ACTATAAAARAAAYTATDAYAAADGCRTG -experiment bat"""
 
 rule DALU:
     input:

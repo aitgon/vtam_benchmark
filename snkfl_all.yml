@@ -98,7 +98,6 @@ include: 'snakefiles/snkfl_analyse_bat_vtam.yml'
 
 include: 'snakefiles/snkfl_prep_bat.yml'
 include: 'snakefiles/snkfl_prep_fish_vtam.yml'
-include: 'snakefiles/snkfl_prep_fish_obibar.yml'
 include: 'snakefiles/snkfl_prep_fish_dalu.yml'
 
 include: 'snakefiles/snkfl_dwnld_bat.yml'

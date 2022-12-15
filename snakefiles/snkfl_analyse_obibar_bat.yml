@@ -89,7 +89,7 @@ rule bat_taxassign_obi:
 
 rule bat_make_merabaR_input_from_obi:
     input:
-        os.path.join(outdir, "obibar_bat/obiout/bat_obi_results.fasta"),
+        os.path.join(outdir, "obibar_bat/obi/bat_obi_results.fasta"),
         "metafiles/sample_types_bat.tsv",
     output:
         os.path.join(outdir, "obibar_bat/obiout/reads_obi.tsv"),
@@ -99,14 +99,13 @@ rule bat_make_merabaR_input_from_obi:
 
 rule obibar_bat:
     input:
-        os.path.join(outdir, "obibar_bat/obi_input.fasta"),
+        os.path.join(outdir, "obibar_bat/make_obi_input/obi_input.fasta"),
     output:
-        os.path.join(outdir, "obibar_bat/obiout/bat_obi_results.fasta"),
+        os.path.join(outdir, "obibar_bat/obi/bat_obi_results.fasta"),
     params:
-        os.path.join(outdir, "obibar_bat/bat"),
+        os.path.join(outdir, "obibar_bat/obi_workdir_bat"),
     shell:
         """
-rm -rf $(dirname {params[0]})
 obi import --fasta {input[0]} {params[0]}/demultiplexed
 obi uniq -m sample {params[0]}/demultiplexed {params[0]}/dereplicated_sequences
 obi annotate -k COUNT -k MERGED_sample {params[0]}/dereplicated_sequences {params[0]}/cleaned_metadata_sequences
@@ -114,3 +113,12 @@ obi grep -p "sequence['COUNT']>=10" {params[0]}/cleaned_metadata_sequences {para
 obi clean -s MERGED_sample -r 0.1 -H {params[0]}/denoised_sequences {params[0]}/cleaned_sequences
 obi export --fasta-output {params[0]}/cleaned_sequences
 """
+
+rule OBIbaR:
+    input:
+        os.path.join(outdir, "vtam_bat/fasta/sortedinfo.tsv"),
+    output:
+        os.path.join(outdir, "obibar_bat/make_obi_input/obi_input.fasta"),
+    shell:
+        """perl scripts/make_obi_input.pl -dir $(dirname {input[0]}) -outdir $(dirname {output[0]}) -sorted_info {input[0]} -fw_primer ATTCHACDAAYCAYAARGAYATYGG -rev_primer ACTATAAAARAAAYTATDAYAAADGCRTG -experiment bat"""
+
