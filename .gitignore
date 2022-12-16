@@ -3,3 +3,4 @@
 out/
 .snakemake/
 lulu.log_*
+.wget-hsts
