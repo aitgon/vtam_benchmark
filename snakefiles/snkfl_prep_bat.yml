@@ -1,6 +1,12 @@
 bat_zip_lst = ['64342', '64342', '64341', '64340', '64339']
-bat_fastq_lst = ['AFOU00048-0201_S1199_L001_R1_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
+bat_fastq_lst = ['JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
 bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
+
+outdir = config['outdir']
+process_data_dir = config['process_data_dir']
+
+if "container" in config:
+    container: config['container']
 
 rule all_prep_bat:
     input:
@@ -20,7 +26,7 @@ rule merge_fastq:
 
 rule DALU:
     input:
-        expand(os.path.join(outdir, "data_bat/{bat_fastq}"), bat_fastq=bat_fastq_lst),
+        expand(os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{bat_zip}/{bat_fastq}"), zip, bat_zip=bat_zip_lst, bat_fastq=bat_fastq_lst),
         filenames="metafiles/rename_bat.tsv",
     output:
         os.path.join(outdir, "dalu_bat/fastq/COI-T_F-3_rv.fastq.gz"),

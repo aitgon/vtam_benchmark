@@ -7,13 +7,13 @@ fish_dic = dict(zip(fish_fastq_lst, fish_tgz_lst))
 
 rule all_dwnld_fish:
     input:
-        expand(os.path.join(outdir, "data_fish", "{fish_fastq}.gz"), fish_fastq=fish_fastq_lst),
+        expand(os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{fish_tgz}", "{fish_fastq}.gz"), zip,  fish_tgz=fish_tgz_lst, fish_fastq=fish_fastq_lst),
 
 rule untar_gz_data_fish:
     input:
         lambda w: os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream", fish_dic[w.fish_fastq]),
     output:
-        os.path.join(outdir, "data_fish", "{fish_fastq}.gz"),
+        os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{fish_tgz}", "{fish_fastq}.gz"),
     shell:
         """tar zxvf {input[0]} --to-stdout |gzip -f >{output[0]}"""
 
@@ -27,4 +27,3 @@ rule wget_fish:
         fish_tgz="628\d\d"
     shell:
         "wget -c -q -r {params.url} -P {params.public_data_dir_path}"
-

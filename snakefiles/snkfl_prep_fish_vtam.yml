@@ -1,8 +1,12 @@
 process_data_dir = config['process_data_dir']
+outdir = config['outdir']
 
 fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
 fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']
 fish_dic = dict(zip(fish_fastq_lst, fish_tgz_lst))
+
+if "container" in config:
+    container: config['container']
 
 rule all_prep_fish_vtam:
     input:
@@ -37,7 +41,7 @@ rule vtam_sortreads_fish_mfzr:
 rule vtam_merge_fish_mfzr:
     input:
         "metafiles/fastqinfo_fish_mfzr.tsv",
-        expand(os.path.join(outdir, "data_fish", "{fish_fastq}.gz"), fish_fastq=fish_fastq_lst)
+        expand(os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{fish_tgz}", "{fish_fastq}.gz"), zip,  fish_tgz=fish_tgz_lst, fish_fastq=fish_fastq_lst),
     output:
         os.path.join(outdir, "vtam_fish/merged_mfzr/fastainfo.tsv"),
     shell:

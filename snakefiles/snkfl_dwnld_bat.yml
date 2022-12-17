@@ -1,20 +1,19 @@
 public_data_dir = config['public_data_dir']
 process_data_dir = config['process_data_dir']
-outdir = config['outdir']
 
 bat_zip_lst = ['64342', '64342', '64341', '64340', '64339']
-bat_fastq_lst = ['AFOU00048-0201_S1199_L001_R1_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
+bat_fastq_lst = ['JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
 bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
 
 rule all_dwnld_bat:
     input:
-        expand(os.path.join(outdir, "data_bat/{bat_fastq}"), bat_fastq=bat_fastq_lst),
+        expand(os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{bat_zip}/{bat_fastq}"), zip, bat_zip=bat_zip_lst, bat_fastq=bat_fastq_lst),
 
 rule unzip_bat:
     input:
         zip=lambda w: os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream", bat_dic[w.bat_fastq]),
     output:
-        fastq=os.path.join(outdir, "data_bat/{bat_fastq}"),
+        fastq=os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{bat_zip}", "{bat_fastq}"),
     shell:
         "unzip -o -j {input.zip} -d  $(dirname {output.fastq})"
 
