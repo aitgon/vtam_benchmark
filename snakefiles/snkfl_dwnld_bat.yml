@@ -7,19 +7,19 @@ bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
 
 rule all_dwnld_bat:
     input:
-        expand(os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{bat_zip}/{bat_fastq}"), zip, bat_zip=bat_zip_lst, bat_fastq=bat_fastq_lst),
+        expand(os.path.join(outdir, "data_bat/{bat_fastq}"), bat_fastq=bat_fastq_lst),
 
 rule unzip_bat:
     input:
-        zip=lambda w: os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream", bat_dic[w.bat_fastq]),
+        lambda w: os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream", bat_dic[w.bat_fastq]),
     output:
-        fastq=os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{bat_zip}", "{bat_fastq}"),
+        os.path.join(outdir, "data_bat/{bat_fastq}"),
     shell:
-        "unzip -o -j {input.zip} -d  $(dirname {output.fastq})"
+        "unzip -o -j {input[0]} -d  $(dirname {output[0]})"
 
 rule wget_bat:
     output:
-        zip=os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream/{bat_zip}"),
+        os.path.join(public_data_dir, "datadryad.org/stash/downloads/file_stream/{bat_zip}"),
     params:
         url="datadryad.org/stash/downloads/file_stream/{bat_zip}",
         public_data_dir_path=public_data_dir,
@@ -27,4 +27,3 @@ rule wget_bat:
         bat_zip="643\d\d"
     shell:
         "wget -c -q -r {params.url} -P {params.public_data_dir_path}"
-

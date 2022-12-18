@@ -26,7 +26,7 @@ rule vtam_sortreads_fish_zfzr:
 rule vtam_merge_fish_zfzr:
     input:
         "metafiles/fastqinfo_fish_zfzr.tsv",
-        expand(os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{fish_tgz}", "{fish_fastq}.gz"), zip,  fish_tgz=fish_tgz_lst, fish_fastq=fish_fastq_lst),
+        expand(os.path.join(outdir, "data_fish", "{fish_fastq}.gz"), fish_fastq=fish_fastq_lst),
     output:
         os.path.join(outdir, "vtam_fish/merged_zfzr/fastainfo.tsv"),
     shell:
@@ -34,16 +34,16 @@ rule vtam_merge_fish_zfzr:
 
 rule vtam_sortreads_fish_mfzr:
     input:
-        fastainfo=os.path.join(outdir, "vtam_fish/merged_mfzr/fastainfo.tsv"),
+        os.path.join(outdir, "vtam_fish/merged_mfzr/fastainfo.tsv"),
     output:
         sortedinfo=os.path.join(outdir, "vtam_fish/sorted_mfzr/sortedinfo.tsv"),
     shell:
-        """vtam sortreads --fastainfo {input.fastainfo} --fastadir $(dirname {input.fastainfo}) --sorteddir $(dirname {output.sortedinfo}) -v"""
+        """vtam sortreads --fastainfo {input[0]} --fastadir $(dirname {input[0]}) --sorteddir $(dirname {output[0]}) -v"""
 
 rule vtam_merge_fish_mfzr:
     input:
         "metafiles/fastqinfo_fish_mfzr.tsv",
-        expand(os.path.join(process_data_dir, "datadryad.org/stash/downloads/file_stream/{fish_tgz}", "{fish_fastq}.gz"), zip,  fish_tgz=fish_tgz_lst, fish_fastq=fish_fastq_lst),
+        expand(os.path.join(outdir, "data_fish", "{fish_fastq}.gz"), fish_fastq=fish_fastq_lst),
     output:
         os.path.join(outdir, "vtam_fish/merged_mfzr/fastainfo.tsv"),
     shell:
