@@ -1,0 +1,6 @@
+.config/
+.idea/
+out/
+.snakemake/
+lulu.log_*
+.wget-hsts

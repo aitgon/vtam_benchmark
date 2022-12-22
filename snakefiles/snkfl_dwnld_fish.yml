@@ -27,4 +27,3 @@ rule wget_fish:
         fish_tgz="628\d\d"
     shell:
         "wget -c -q -r {params.url} -P {params.public_data_dir_path}"
-

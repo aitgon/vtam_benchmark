@@ -8,10 +8,52 @@ This is the code to reproduce the benchmark analysis of metabarcoding software p
 
 # Quick start
 
-Run
+Download this repository
 
 ~~~
-snakemake -p -c 15 -s snkfl_all.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out_min_readcount_0 --resources db_fish=1 db_bat=1
+git clone git@github.com:aitgon/vtam_benchmark.git
+cd vtam_benchmark
+~~~
+
+Prepare output and data directories
+
+~~~
+mkdir -p out
+mkdir -p "${HOME}"/Software/process
+mkdir -p "${HOME}"/Software/public
+~~~
+
+Build singularity container
+
+~~~
+sudo /home/gonzalez/Software/singularity_3.5.1/bin/singularity build out/vtam_benchmark.sif vtam_benchmark.def
+~~~
+
+Install and enter snakemake as describe here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
+
+~~~
+conda install -n base -c conda-forge mamba
+conda activate base
+mamba create -c conda-forge -c bioconda -n snakemake snakemake
+conda activate snakemake
+~~~
+
+Download and prepare data
+
+~~~
+snakemake -p -c all -s 01snkfl_prep.yml --config process_data_dir="${HOME}"/Software/tmp/process public_data_dir="${HOME}"/Software/tmp/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+~~~
+
+Run VTAM and DALU analyses
+
+~~~
+snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="${HOME}"/Software/tmp/process public_data_dir="${HOME}"/Software/tmp/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+~~~
+
+Run obibar analysis and plots
+
+~~~
+snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
 ~~~
 
 You must repeat the previous command with min read counts 10, 20 and 60.
@@ -338,4 +380,5 @@ Rognes, T., Flouri, T., Nichols, B., Quince, C., & Mahé, F. (2016). VSEARCH: A 
 Zeale, M. R. K., Butlin, R. K., Barker, G. L. A., Lees, D. C., & Jones, G. (2011). Taxon-specific PCR for DNA barcoding arthropod prey in bat faeces. *Molecular Ecology Resources*, *11*(2), 236–244. https://doi.org/10.1111/j.1755-0998.2010.02920.x
 
 Zinger, L., Lionnet, C., Benoiston, A.-S., Donald, J., Mercier, C., & Boyer, F. (2020). metabaR: An R package for the evaluation and improvement of DNA metabarcoding data quality. *BioRxiv*, 2020.08.28.271817. https://doi.org/10.1101/2020.08.28.271817
+
 
