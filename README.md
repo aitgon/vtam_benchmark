@@ -26,7 +26,7 @@ mkdir -p "${HOME}"/Software/public
 Build singularity container
 
 ~~~
-sudo /home/gonzalez/Software/singularity_3.5.1/bin/singularity build out/vtam_benchmark.sif vtam_benchmark.def
+sudo singularity build out/vtam_benchmark.sif vtam_benchmark.def
 ~~~
 
 Install and enter snakemake as describe here: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
