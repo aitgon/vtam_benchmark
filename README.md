@@ -41,13 +41,13 @@ conda activate snakemake
 Download and prepare data
 
 ~~~
-snakemake -p -c all -s 01snkfl_prep.yml --config process_data_dir="${HOME}"/Software/tmp/process public_data_dir="${HOME}"/Software/tmp/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+snakemake -p -c all -s 01snkfl_prep.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
 ~~~
 
 Run VTAM and DALU analyses
 
 ~~~
-snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="${HOME}"/Software/tmp/process public_data_dir="${HOME}"/Software/tmp/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
 ~~~
 
 Run obibar analysis and plots
