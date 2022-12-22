@@ -24,6 +24,7 @@ rule taxassign_fish_dalu:
         os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
     output:
         os.path.join(outdir, "dalu_fish/dalu_fish_final_taxa.tsv"),
+    log: os.path.join(outdir, "logs/dalu_fish/vtam_taxassign.log"),
     params:
         os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
         "coi_blast_db_20200420",

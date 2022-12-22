@@ -9,6 +9,7 @@ rule filter2_zfzr:
         "metafiles/params_filter_fish_zfzr.yml",
     output:
         os.path.join(outdir, "vtam_fish/asvtable_optimized_zfzr.tsv"),
+    log: os.path.join(outdir, "logs/vtam_fish/vtam_filter_optimized_zfzr.log"),
     params:
         os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
     resources: db_fish=1

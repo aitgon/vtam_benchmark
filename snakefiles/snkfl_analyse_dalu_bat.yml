@@ -12,6 +12,7 @@ rule filter_indel_codon_stop_pooling_bat:
         "metafiles/mock_composition_bat.tsv",
     output:
         os.path.join(outdir, "dalu_bat/filters/asv_table_final.tsv"),
+    log: os.path.join(outdir, "logs/dalu_bat/filters/add_filters.log"),
     params:
         min_readcount=min_readcount,
     shell:

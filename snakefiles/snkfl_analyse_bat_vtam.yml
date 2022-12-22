@@ -29,9 +29,10 @@ rule filter2:
         "metafiles/params_filter_bat.yml",
     output:
         os.path.join(outdir, "vtam_bat/vtam_bat_final.tsv"),
+    log: os.path.join(outdir, "logs/vtam_bat/vtam_filter.log"),
     params:
         os.path.join(outdir, "vtam_bat/db_bat.sqlite"),
     resources: db_bat=1
     shell:
-        """vtam filter --db {params[0]} --sortedinfo {input[0]} --sorteddir $(dirname {input[0]}) --asvtable {output[0]} -v --params {input[1]}"""
+        """vtam filter -v --db {params[0]} --sortedinfo {input[0]} --sorteddir $(dirname {input[0]}) --asvtable {output[0]} -v --params {input[1]}"""
 

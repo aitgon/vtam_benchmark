@@ -15,6 +15,7 @@ rule add_filters_fish_zfzr:
         "metafiles/sample_types_fish.tsv",
     output:
         os.path.join(outdir, "obibar_fish/filters_zfzr/asv_table_final.tsv"),
+    log: os.path.join(outdir, "logs/obibar_fish/filters_zfzr/add_filters.log"),
     params:
         min_readcount=min_readcount,
     shell:

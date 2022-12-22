@@ -15,6 +15,7 @@ rule add_filters_fish_mfzr:
         "metafiles/sample_types_fish.tsv",
     output:
         os.path.join(outdir, "obibar_fish/filters_mfzr/asv_table_final.tsv"),
+    log: os.path.join(outdir, "logs/obibar_fish/filters_mfzr/add_filters.log"),
     params:
         min_readcount=min_readcount,
     shell:
@@ -58,6 +59,7 @@ rule fish_mfzr_taxassign_obi:
         os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
     output:
         os.path.join(outdir, "obibar_fish/mfzr_obiout/motus_obi_taxa.tsv"),
+    log: os.path.join(outdir, "logs/obibar_fish/mfzr_obiout/vtam_taxassign.log"),
     params:
         os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
         os.path.join(outdir, "vtam_db/coi_blast_db"),
