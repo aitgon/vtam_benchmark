@@ -4,8 +4,6 @@ public_data_dir = config['public_data_dir']
 process_data_dir = config['process_data_dir']
 min_readcount = config['min_readcount']
 outdir = config['outdir']
-data_bat = config['data_bat']
-data_fish = config['data_fish']
 
 fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
 fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']
@@ -20,20 +18,43 @@ if "container" in config:
 
 rule prep_all:
     input:
-        os.path.join(outdir, "dalu_fish/fastq_mfzr/MFZR-Tpos2_prerun-3_rv.fastq.gz"),
-        os.path.join(outdir, "dalu_fish/fastq_zfzr/ZFZR-Tpos2_prerun-3_rv.fastq.gz"),
-        os.path.join(outdir, "vtam_bat/fasta/sortedinfo.tsv"),
-        os.path.join(outdir, "vtam_fish/sorted_mfzr/sortedinfo.tsv"),
-        os.path.join(outdir, "vtam_fish/sorted_zfzr/sortedinfo.tsv"),
+        expand(os.path.join(outdir, "data_bat/{bat_fastq}"), bat_fastq=bat_fastq_lst),
+        expand(os.path.join(outdir, "data_fish", "{fish_fastq}.gz"), fish_fastq=fish_fastq_lst),
 
-include: 'snakefiles/snkfl_prep_bat.yml'
-include: 'snakefiles/snkfl_prep_fish_vtam.yml'
-include: 'snakefiles/snkfl_prep_fish_dalu.yml'
+include: 'snkfl_dwnld_bat.yml'
+include: 'snkfl_dwnld_fish.yml'
 
-#include: 'snakefiles/snkfl_dwnld_bat.yml'
-#include: 'snakefiles/snkfl_dwnld_fish.yml'
-
-
-
-
-
+#rule gunzip_taxonomy:
+#    input:
+#        gz=os.path.join(process_data_dir, "osf.io/uzk87/taxonomy.tsv.gz"),
+#    output:
+#        tsv=os.path.join(outdir, "vtam_db/taxonomy.tsv"),
+#    shell:
+#        """gunzip -c {input.gz} > {output.tsv}"""
+#
+#rule wget_taxonomy:
+#    output:
+#        gz=os.path.join(process_data_dir, "osf.io/uzk87/taxonomy.tsv.gz"),
+#    params:
+#        url="osf.io/uzk87/download",
+#        public_data_dir_path=public_data_dir,
+#    shell:
+#        "wget -nc -q -r {params.url} -O {output.gz}"
+#
+#rule untar_blast_db:
+#    input:
+#        gz=os.path.join(process_data_dir, "osf.io/kw9ms/coi_blast_db_20200420.tar.gz"),
+#    output:
+#        untar=os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
+#    shell:
+#        "tar -zxvf {input.gz} -C $(dirname {output.untar})"
+#
+#rule wget_blast_db:
+#    output:
+#        gz=os.path.join(process_data_dir, "osf.io/kw9ms/coi_blast_db_20200420.tar.gz"),
+#    params:
+#        url="osf.io/kw9ms/download",
+#        public_data_dir_path=public_data_dir,
+#    shell:
+#        "wget -nc -q -r {params.url} -O {output.gz}"
+#

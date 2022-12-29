@@ -38,10 +38,59 @@ mamba create -c conda-forge -c bioconda -n snakemake snakemake
 conda activate snakemake
 ~~~
 
-Download and prepare data
+Download bat and fish datasets
 
 ~~~
-snakemake -p -c all -s 01snkfl_prep.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62829 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62831 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62833 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62835 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62837 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62839 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62841 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62843 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62845 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62847 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62849 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/62851 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/64339 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/64340 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/64341 -P ${HOME}/Software/public
+wget -c -q -r datadryad.org/stash/downloads/file_stream/64342 -P ${HOME}/Software/public
+~~~
+
+Unzip bat datasets
+
+~~~
+mkdir -p out/data_bat
+unzip -o -j ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/64339 -d  out/data_bat
+unzip -o -j ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/64340 -d  out/data_bat
+unzip -o -j ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/64341 -d  out/data_bat
+unzip -o -j ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/64342 -d  out/data_bat
+~~~
+
+Untar fish datasets
+
+~~~
+mkdir -p out/data_fish
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62829 --to-stdout |gzip -f >out/data_fish/MFZR1_S4_L001_R1_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62831 --to-stdout |gzip -f >out/data_fish/MFZR1_S4_L001_R2_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62833 --to-stdout |gzip -f >out/data_fish/MFZR2_S5_L001_R1_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62835 --to-stdout |gzip -f >out/data_fish/MFZR2_S5_L001_R2_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62837 --to-stdout |gzip -f >out/data_fish/MFZR3_S6_L001_R1_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62839 --to-stdout |gzip -f >out/data_fish/MFZR3_S6_L001_R2_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62841 --to-stdout |gzip -f >out/data_fish/ZFZR1_S1_L001_R1_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62843 --to-stdout |gzip -f >out/data_fish/ZFZR1_S1_L001_R2_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62845 --to-stdout |gzip -f >out/data_fish/ZFZR2_S2_L001_R1_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62847 --to-stdout |gzip -f >out/data_fish/ZFZR2_S2_L001_R2_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62849 --to-stdout |gzip -f >out/data_fish/ZFZR3_S3_L001_R1_001.fastq.gz
+tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62851 --to-stdout |gzip -f >out/data_fish/ZFZR3_S3_L001_R2_001.fastq.gz
+~~~
+
+and prepare data
+
+~~~
+snakemake -p -c all -s 01snkfl_prep.yml --config data_fish=out/data_fish data_bat=out/data_bat process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
 ~~~
 
 Run VTAM and DALU analyses
