@@ -87,6 +87,22 @@ tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62849
 tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62851 --to-stdout |gzip -f >out/data_fish/ZFZR3_S3_L001_R2_001.fastq.gz
 ~~~
 
+Download the taxonomy and the COI blast db.
+
+~~~
+mkdir -p ${HOME}/Software/process
+wget -c -q -r osf.io/uzk87/download -O ${HOME}/Software/process/osf.io/uzk87/taxonomy.tsv.gz
+wget -c -q -r osf.io/kw9ms/download -O ${HOME}/Software/process/osf.io/kw9ms/coi_blast_db_20200420.tar.gz
+~~~
+
+Extract the taxonomy and the COI blast db.
+
+~~~
+mkdir -p out/vtam_db/coi_blast_db
+tar -zxvf ${HOME}/Software/process/osf.io/kw9ms/coi_blast_db_20200420.tar.gz -C out/vtam_db/coi_blast_db
+gunzip -c ${HOME}/Software/process/osf.io/uzk87/taxonomy.tsv.gz > out/vtam_db/taxonomy.tsv
+~~~
+
 and prepare data
 
 ~~~
@@ -96,7 +112,7 @@ snakemake -p -c all -s 01snkfl_prep.yml --config data_fish=out/data_fish data_ba
 Run VTAM and DALU analyses
 
 ~~~
-snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 --resources db_fish=1 db_bat=1 --use-singularity
 ~~~
 
 Run obibar analysis and plots

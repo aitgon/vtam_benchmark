@@ -55,14 +55,14 @@ rule fish_zfzr_adapt_taxa_obi:
 rule fish_zfzr_taxassign_obi:
     input:
         os.path.join(outdir, "obibar_fish/zfzr_obiout/motus_obi.tsv"),
-        os.path.join(outdir, "vtam_db/taxonomy.tsv"),
+        taxonomy,
         os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
     output:
         os.path.join(outdir, "obibar_fish/zfzr_obiout/motus_obi_taxa.tsv"),
     params:
         os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
-        os.path.join(outdir, "vtam_db/coi_blast_db"),
-        "coi_blast_db_20200420",
+        blastdbdir,
+        blastdbname,
     resources: db_fish=1
     shell:
         """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""

@@ -1,7 +1,10 @@
-public_data_dir = config['public_data_dir']
-process_data_dir = config['process_data_dir']
+blastdbdir = config['blastdbdir']
+blastdbname = config['blastdbname']
 min_readcount = config['min_readcount']
 outdir = config['outdir']
+process_data_dir = config['process_data_dir']
+public_data_dir = config['public_data_dir']
+taxonomy = config['taxonomy']
 
 fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
 fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']

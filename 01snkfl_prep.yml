@@ -30,9 +30,6 @@ include: 'snakefiles/snkfl_prep_bat.yml'
 include: 'snakefiles/snkfl_prep_fish_vtam.yml'
 include: 'snakefiles/snkfl_prep_fish_dalu.yml'
 
-#include: 'snakefiles/snkfl_dwnld_bat.yml'
-#include: 'snakefiles/snkfl_dwnld_fish.yml'
-
 
 
 
