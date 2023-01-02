@@ -56,7 +56,7 @@ rule fish_zfzr_taxassign_obi:
     input:
         os.path.join(outdir, "obibar_fish/zfzr_obiout/motus_obi.tsv"),
         taxonomy,
-        os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
+        os.path.join(blastdbdir, blastdbname + ".nsq"),
     output:
         os.path.join(outdir, "obibar_fish/zfzr_obiout/motus_obi_taxa.tsv"),
     params:

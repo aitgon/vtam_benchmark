@@ -12,7 +12,7 @@ rule obibar_taxassign_fish:
     input:
         os.path.join(outdir, "obibar_fish/obibar_fish_final.tsv"),
         taxonomy,
-        os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
+        os.path.join(blastdbdir, blastdbname + ".nsq"),
     output:
         os.path.join(outdir, "obibar_fish/obibar_fish_final_taxa.tsv"),
     params:
