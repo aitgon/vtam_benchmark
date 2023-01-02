@@ -15,7 +15,7 @@ rule taxassign_bat_dalu:
         blastdbdir,
         blastdbname,
     shell:
-        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir $(dirname {input[1]}) --blastdbname {params[2]} -v"""
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
 
 rule taxassign_fish_dalu:
     input:
@@ -27,9 +27,10 @@ rule taxassign_fish_dalu:
     log: os.path.join(outdir, "logs/dalu_fish/vtam_taxassign.log"),
     params:
         os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
-        "coi_blast_db_20200420",
+        blastdbdir,
+        blastdbname,
     shell:
-        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir $(dirname {input[2]}) --blastdbname {params[1]} -v"""
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
 
 rule pool_marker_mfzr_zfzr:
     input:
