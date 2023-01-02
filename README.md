@@ -118,7 +118,7 @@ snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir=
 Run obibar analysis and plots
 
 ~~~
-snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_fish=out/data_fish data_bat=out/data_bat process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
 ~~~
 
 You must repeat the previous command with min read counts 10, 20 and 60.
