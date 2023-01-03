@@ -75,7 +75,7 @@ rule bat_adapt_taxa_obi:
 rule bat_taxassign_obi:
     input:
         os.path.join(outdir, "obibar_bat/obiout/motus_obi.tsv"),
-        os.path.join(outdir, "vtam_db/taxonomy.tsv"),
+        taxonomy,
         os.path.join(blastdbdir, blastdbname + ".nsq"),
     output:
         os.path.join(outdir, "obibar_bat/obiout/motus_obi_taxa.tsv"),
