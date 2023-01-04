@@ -1,0 +1,21 @@
+# snakemake -p -c all -s 01snkfl_prep.yml --config process_data_dir="${HOME}"/Software/tmp/process public_data_dir="${HOME}"/Software/tmp/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1
+
+public_data_dir = config['public_data_dir']
+process_data_dir = config['process_data_dir']
+min_readcount = config['min_readcount']
+outdir = config['outdir']
+data_shark = config['data_shark']
+
+shark_fastq_lst = ['reqpol_R1_fw.fastq', 'reqpol_R1_rv.fastq', 'reqpol_R2_fw.fastq', 'reqpol_R2_rv.fastq', 'reqpol_R3_fw.fastq', 'reqpol_R3_rv.fastq']
+
+if "container" in config:
+    container: config['container']
+
+rule prep_all:
+    input:
+        os.path.join(outdir, "vtam_shark/sorted/sortedinfo.tsv"),
+        os.path.join(outdir, "dalu_shark/fastq/16S1-Tneg_pcr_REQPOL-3_rv.fastq.gz"),
+        
+include: 'snakefiles/snkfl_prep_shark_vtam.yml'
+include: 'snakefiles/snkfl_prep_shark_dalu.yml'
+

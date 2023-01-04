@@ -41,6 +41,7 @@ conda activate snakemake
 Download bat and fish datasets
 
 ~~~
+mkdir -p ${HOME}/Software/public
 wget -c -q -r datadryad.org/stash/downloads/file_stream/62829 -P ${HOME}/Software/public
 wget -c -q -r datadryad.org/stash/downloads/file_stream/62831 -P ${HOME}/Software/public
 wget -c -q -r datadryad.org/stash/downloads/file_stream/62833 -P ${HOME}/Software/public

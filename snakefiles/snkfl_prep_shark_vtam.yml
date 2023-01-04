@@ -1,0 +1,31 @@
+data_shark = config['data_shark']
+outdir = config['outdir']
+#process_data_dir = config['process_data_dir']
+
+shark_fastq_lst = ['reqpol_R1_fw.fastq', 'reqpol_R1_rv.fastq', 'reqpol_R2_fw.fastq', 'reqpol_R2_rv.fastq', 'reqpol_R3_fw.fastq', 'reqpol_R3_rv.fastq']
+
+if "container" in config:
+    container: config['container']
+
+rule all_prep_fish_vtam:
+    input:
+        os.path.join(outdir, "vtam_shark/sorted/sortedinfo.tsv"),
+
+rule vtam_sortreads_shark:
+    input:
+        fastainfo=os.path.join(outdir, "vtam_shark/merged/fastainfo.tsv"),
+    output:
+        sortedinfo=os.path.join(outdir, "vtam_shark/sorted/sortedinfo.tsv"),
+    shell:
+        """vtam sortreads --fastainfo {input.fastainfo} --fastadir $(dirname {input.fastainfo}) --sorteddir $(dirname {output.sortedinfo}) -v"""
+
+rule vtam_merge_shark:
+    input:
+        "metafiles/fastqinfo_shark.tsv",
+        expand(os.path.join(data_shark, "{shark_fastq}.gz"), shark_fastq=shark_fastq_lst),
+    output:
+        os.path.join(outdir, "vtam_shark/merged/fastainfo.tsv"),
+    shell:
+        """vtam merge --fastqinfo {input[0]} --fastqdir $(dirname {input[1]}) --fastainfo {output[0]} --fastadir $(dirname {output[0]}) -v"""
+        
+
