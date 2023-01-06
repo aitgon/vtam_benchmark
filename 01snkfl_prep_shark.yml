@@ -14,7 +14,7 @@ if "container" in config:
 rule prep_all:
     input:
         os.path.join(outdir, "vtam_shark/sorted/sortedinfo.tsv"),
-        os.path.join(outdir, "dalu_shark/fastq/16S1-Tneg_pcr_REQPOL-3_rv.fastq.gz"),
+        os.path.join(outdir, "dalu_shark/fastq/16S1-Tneg_pcr_REQPOL-3_fw.fastq.gz"),
         
 include: 'snakefiles/snkfl_prep_shark_vtam.yml'
 include: 'snakefiles/snkfl_prep_shark_dalu.yml'

@@ -2,8 +2,7 @@
 ## download data
 
 ~~~
-mkdir -p out/data_shark/200309
-mkdir -p out/data_shark/200513
+mkdir -p out/data_shark
 ~~~
 
 Download
