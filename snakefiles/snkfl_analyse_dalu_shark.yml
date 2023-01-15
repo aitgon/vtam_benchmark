@@ -1,0 +1,96 @@
+
+rule all_analyse_dalu_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/filters/asv_table_final_taxa.tsv"),
+
+rule taxassign_shark_dalu:
+    input:
+        os.path.join(outdir, "dalu_shark/filters/asv_table_final.tsv"),
+        taxonomy_16S,
+        os.path.join(blastdbdir_16S, blastdbname_16S + ".nsq"),
+    output:
+        os.path.join(outdir, "dalu_shark/dalu_shark_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+        blastdbdir_16S,
+        blastdbname_16S,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule filter_min_readnumber_pooling_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/filters/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv"),
+        "metafiles/sample_types_shark.tsv",
+        "metafiles/mock_composition_shark.tsv",
+    output:
+        os.path.join(outdir, "dalu_shark/filters/asv_table_final.tsv"),
+    log: os.path.join(outdir, "logs/dalu_shark/filters/add_filters.log"),
+    params:
+        min_readcount=min_readcount,
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -mock_compositon {input[3]} -match_seqid_to_vtam 1 -filter_indel 0 -filter_codon_stop 0 -min_readcount {params.min_readcount}"""
+
+rule sqlite_variants_shark:
+    input:
+        os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+
+rule replicate_pooling_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/dada/asv.fasta"),
+        os.path.join(outdir, "dalu_shark/dada/asv_table_lulu.csv"),
+        "metafiles/sample_types_shark.tsv",
+    output:
+        os.path.join(outdir, "dalu_shark/filters/asv_table_pooled_replicates.tsv"),
+    shell:
+        """perl scripts/pool_replicates.pl -asvseq {input[0]} -asvtable {input[1]} -out {output[0]} -septable ',' -samples {input[2]} -marker 16S1"""
+
+rule lulu_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/dada/asv_table_names.csv"),
+        os.path.join(outdir, "dalu_shark/dada/asv_auto_blast.tsv"),
+    output:
+        os.path.join(outdir, "dalu_shark/dada/asv_table_lulu.csv"),
+    shell:
+        """Rscript scripts/lulu.R {input[0]} {input[1]} {output[0]}"""
+
+rule blastn_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/dada/asv.fasta"),
+        os.path.join(outdir, "dalu_shark/dada/asv.fasta.nsq"),
+    output:
+        os.path.join(outdir, "dalu_shark/dada/asv_auto_blast.tsv"),
+    shell:
+        """blastn -db {input[0]} -outfmt '6 qseqid sseqid pident' -out {output[0]} -qcov_hsp_perc 80 -perc_identity 80 -query {input[0]}"""
+
+rule makeblastdb_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/dada/asv.fasta"),
+    output:
+        os.path.join(outdir, "dalu_shark/dada/asv.fasta.nsq"),
+    params:
+        os.path.join(outdir, "dalu_shark/dada/asv.fasta"),
+    shell:
+        """makeblastdb -in {input[0]} -parse_seqids -dbtype nucl -out {params[0]}"""
+
+
+rule dada_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/fastq/16S1-Tpos_BactZB_b-3_rv.fastq.gz"),
+    output:
+        os.path.join(outdir, "dalu_shark/dada/track.csv"),
+        os.path.join(outdir, "dalu_shark/dada/asv.fasta"),
+        os.path.join(outdir, "dalu_shark/dada/asv_table_names.csv"),
+    params:
+        truncLen0=150,
+        seq_length_range0=252,
+        seq_length_range1=254,
+        dataset="shark",
+    shell:
+         """Rscript scripts/dada.R $(dirname {input[0]}) {output[0]} {output[1]} {output[2]} {params.truncLen0} {params.seq_length_range0} {params.seq_length_range1} {params.dataset}"""

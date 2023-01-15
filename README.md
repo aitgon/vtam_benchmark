@@ -1,12 +1,14 @@
 ---
 title: VTAM, Benchmark
-author: Emese Meglecz, Aitor González
-date: Oct 12, 2022
+author: Emese Meglécz, Aitor González
+date: Jan 15, 2023
 ---
 
 This is the code to reproduce the benchmark analysis of metabarcoding software presented here: TODO
 
 # Quick start
+
+## Install dependencies
 
 Download this repository
 
@@ -37,6 +39,8 @@ conda activate base
 mamba create -c conda-forge -c bioconda -n snakemake snakemake
 conda activate snakemake
 ~~~
+
+## Downloads
 
 Download bat and fish datasets
 
@@ -88,6 +92,50 @@ tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62849
 tar zxvf ${HOME}/Software/public/datadryad.org/stash/downloads/file_stream/62851 --to-stdout |gzip -f >out/data_fish/ZFZR3_S3_L001_R2_001.fastq.gz
 ~~~
 
+download shark dataset
+~~~
+mkdir -p out/data_shark/200309
+mkdir -p out/data_shark/200513
+~~~
+
+Download
+~~~
+mkdir -p ${HOME}/Software/public
+wget -cr https://osf.io/ymswg/download -P ${HOME}/Software/public
+wget -cr https://osf.io/7yf2g/download -P ${HOME}/Software/public
+wget -cr https://osf.io/wp6u8/download -P ${HOME}/Software/public
+wget -cr https://osf.io/q69de/download -P ${HOME}/Software/public
+wget -cr https://osf.io/7pt3x/download -P ${HOME}/Software/public
+wget -cr https://osf.io/aqrkb/download -P ${HOME}/Software/public
+~~~
+
+Untar
+~~~
+mkdir -p ${HOME}/Software/process/osf.io/ymswg/
+tar zxvf ${HOME}/Software/public/osf.io/ymswg/download -C ${HOME}/Software/process/osf.io/ymswg/
+mkdir -p ${HOME}/Software/process/osf.io/7yf2g/
+tar zxvf ${HOME}/Software/public/osf.io/7yf2g/download -C ${HOME}/Software/process/osf.io/7yf2g/
+mkdir -p ${HOME}/Software/process/osf.io/wp6u8/
+tar zxvf ${HOME}/Software/public/osf.io/wp6u8/download -C ${HOME}/Software/process/osf.io/wp6u8/
+mkdir -p ${HOME}/Software/process/osf.io/q69de/
+tar zxvf ${HOME}/Software/public/osf.io/q69de/download -C ${HOME}/Software/process/osf.io/q69de/
+mkdir -p ${HOME}/Software/process/osf.io/7pt3x/
+tar zxvf ${HOME}/Software/public/osf.io/7pt3x/download -C ${HOME}/Software/process/osf.io/7pt3x/
+mkdir -p ${HOME}/Software/process/osf.io/aqrkb/
+tar zxvf ${HOME}/Software/public/osf.io/aqrkb/download -C ${HOME}/Software/process/osf.io/aqrkb/
+~~~
+
+Pool 2 runs and gzip files
+~~~
+mkdir -p out/data_shark
+cat ${HOME}/Software/process/osf.io/ymswg/REQPOL-R1_S1_L001_R1_001.fastq ${HOME}/Software/process/osf.io/q69de/REQPOL-R1_S1_L001_R1_001.fastq |gzip -c >out/data_shark/reqpol_R1_fw.fastq.gz
+cat ${HOME}/Software/process/osf.io/ymswg/REQPOL-R1_S1_L001_R2_001.fastq ${HOME}/Software/process/osf.io/q69de/REQPOL-R1_S1_L001_R2_001.fastq |gzip -c >out/data_shark/reqpol_R1_rv.fastq.gz
+cat ${HOME}/Software/process/osf.io/7yf2g/REQPOL-R2_S2_L001_R1_001.fastq ${HOME}/Software/process/osf.io/7pt3x/REQPOL-R2_S2_L001_R1_001.fastq |gzip -c >out/data_shark/reqpol_R2_fw.fastq.gz
+cat ${HOME}/Software/process/osf.io/7yf2g/REQPOL-R2_S2_L001_R2_001.fastq ${HOME}/Software/process/osf.io/7pt3x/REQPOL-R2_S2_L001_R2_001.fastq |gzip -c >out/data_shark/reqpol_R2_rv.fastq.gz
+cat ${HOME}/Software/process/osf.io/wp6u8/REQPOL-R3_S3_L001_R1_001.fastq ${HOME}/Software/process/osf.io/aqrkb/REQPOL-R3_S3_L001_R1_001.fastq |gzip -c >out/data_shark/reqpol_R3_fw.fastq.gz
+cat ${HOME}/Software/process/osf.io/wp6u8/REQPOL-R3_S3_L001_R2_001.fastq ${HOME}/Software/process/osf.io/aqrkb/REQPOL-R3_S3_L001_R2_001.fastq |gzip -c >out/data_shark/reqpol_R3_rv.fastq.gz
+~~~
+
 Download the taxonomy and the COI blast db.
 
 ~~~
@@ -104,29 +152,59 @@ tar -zxvf ${HOME}/Software/process/osf.io/kw9ms/coi_blast_db_20200420.tar.gz -C 
 gunzip -c ${HOME}/Software/process/osf.io/uzk87/taxonomy.tsv.gz > out/vtam_db/taxonomy.tsv
 ~~~
 
-and prepare data
-
+Download 16S blast db and taxonomy file
 ~~~
-snakemake -p -c all -s 01snkfl_prep.yml --config data_fish=out/data_fish data_bat=out/data_bat process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
-~~~
-
-Run VTAM and DALU analyses
-
-~~~
-snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 --resources db_fish=1 db_bat=1 --use-singularity
+mkdir -p ${HOME}/Software/process
+wget -c -q -r osf.io/6bjw8/download -O ${HOME}/Software/process/osf.io/6bjw8/rdp_taxonomy.tsv.gz
+wget -c -q -r osf.io/g5v6y/download -O ${HOME}/Software/process/osf.io/g5v6y/rdp_16StrainssetNo18_vtam.tar.gz
 ~~~
 
-Run obibar analysis and plots
+Extract the taxonomy and the 16S blast db.
+~~~
+mkdir -p out/vtam_db/rdp_16StrainssetNo18_vtam
+tar -zxvf ${HOME}/Software/process/osf.io/g5v6y/rdp_16StrainssetNo18_vtam.tar.gz -C out/vtam_db/rdp_16StrainssetNo18_vtam
+gunzip -c ${HOME}/Software/process/osf.io/6bjw8/rdp_taxonomy.tsv.gz > out/vtam_db/rdp_taxonomy.tsv
+~~~
+
+## Prepare data 
+
+VTAM, DALU, OBI - bat, fish, shark
 
 ~~~
-snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_fish=out/data_fish data_bat=out/data_bat process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_fish=1 db_bat=1 --use-singularity
+snakemake -p -c all -s 01snkfl_prep.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
 ~~~
 
-You must repeat the previous command with min read counts 10, 20 and 60.
+clean up
+~~~
+rm -r out/min_readcount_0/dalu_fish/fastq_demultiplexed_trimmed_fw_mfzr
+rm -r out/min_readcount_0/dalu_fish/fastq_demultiplexed_trimmed_fw_zfzr
+rm -r out/min_readcount_0/dalu_fish/fastq_demultiplexed_trimmed_rev_mfzr
+rm -r out/min_readcount_0/dalu_fish/fastq_demultiplexed_trimmed_rev_zfzr
+rm -r out/min_readcount_0/dalu_fish/fastq_demultiplexed_untrimmed_mfzr
+rm -r out/min_readcount_0/dalu_fish/fastq_demultiplexed_untrimmed_zfzr
+rm -r out/min_readcount_0/dalu_shark/fastq_demultiplexed_untrimmed
+rm -r out/min_readcount_10_before_analyse/vtam_fish/merged_mfzr
+rm -r out/min_readcount_10_before_analyse/vtam_fish/merged_zfzr
+rm -r out/min_readcount_10_before_analyse/vtam_shark/merged
+~~~
+
+## Analyse 
+
+Analyse VTAM, DALU  - bat, fish, shark
+
+```
+snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+```
+
+Analyse ObiBAR, make plots  - bat, fish, shark
+```
+snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+```
+
+You must repeat the previous commands with min read counts 10, 40 and 60.
 Then you run this command:
-
 ~~~
-python scripts/plt_sensitivity_precision.py out_min_readcount_0/summary_min_readcount_0/control_counts.tsv out_min_readcount_10/summary/control_counts.tsv out_min_readcount_20/summary/control_counts.tsv out_min_readcount_60/summary/control_counts.tsv
+python scripts/plt_sensitivity_precision.py out_min_readcount_0/summary_min_readcount_0/control_counts.tsv out_min_readcount_10/summary/control_counts.tsv out_min_readcount_40/summary/control_counts.tsv out_min_readcount_60/summary/control_counts.tsv
 ~~~
 
 # Datasets

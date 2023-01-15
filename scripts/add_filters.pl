@@ -58,6 +58,7 @@ my %asv_tax; # $asv_tax{varid} = (columns after the last sample)
 my @title_end; # col names after last sample
 my %count = read_asv($asv, $sep, $id_col, $first_sample_col, $motif_after_last_sample, $seq_col, \%seq, \%asv_tax, \@title_end);
 
+my $outdir = get_dir($out_asv);
 
 if($match_seqid_to_vtam) # replace all seqids by vtam seqid
 {
@@ -73,7 +74,7 @@ if($min_readcount)
 
 if($filter_chimera) # by uchime_denovo3 => Puts read_count to 0 if variants is classed as chimera in the sample
 {
-	filter_chimera(\%seq, \%count);
+	filter_chimera(\%seq, \%count, $outdir);
 #	print "filter_chimera OK\n";
 }
 
@@ -92,7 +93,7 @@ if($filter_codon_stop) # detects and deletes ASV with with codon stop in all thr
 my %cluster_info; # $cluster_info{varid} = clusterid.$sep.clustersize
 if($add_cluster) # cluster sequences to help making MOTUs if necessary
 {
-	%cluster_info = add_cluster($cluster_identity, \%seq, $sep);
+	%cluster_info = add_cluster($cluster_identity, \%seq, $sep, $outdir);
 #	print "cluster_info OK\n";
 }
 
@@ -378,10 +379,10 @@ sub read_csv_to_hash_of_hash
 
 sub filter_chimera
 {
-	my ($seq, $count) = @_ ;
+	my ($seq, $count, $outdir) = @_ ;
 	# %count{var}{sample} = read count
 	
-	my $tmp_dir = 'tmp_'.time.'/';
+	my $tmp_dir = $outdir.'tmp_'.time.'/';
 	if(-e $tmp_dir)
 	{
 		my $cmd = 'rm -r '.$tmp_dir;
@@ -752,10 +753,10 @@ return $sum;
 
 sub add_cluster
 {
-	my ($id, $seq, $sep) = @_;
+	my ($id, $seq, $sep, $outdir) = @_;
 	
 # delete existing cluster folder to avoid mixing up data with previous runs
-	my $temp = 'tmp_'.time.'/';
+	my $temp = $outdir.'tmp_'.time.'/';
 	if (-e $temp) 
 	{
 		my $c = 'rm -r '.$temp;
@@ -961,7 +962,18 @@ sub modify_params_from_tags
 
 }
 
+###################################################
 
+sub get_dir
+{
+	my ($file) = @_;
+
+	my $dir = $file;
+	
+	$dir =~ s/[^\\\/]+$//;
+	return $dir;
+
+}
 
 
 

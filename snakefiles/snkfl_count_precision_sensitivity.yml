@@ -9,12 +9,17 @@ rule count_prec_sensi:
         mock_bat="metafiles/mock_composition_bat.tsv",
         samples_fish="metafiles/sample_types_fish.tsv",
         mock_fish="metafiles/mock_composition_fish.tsv",
+        samples_shark="metafiles/sample_types_shark.tsv",
+        mock_shark="metafiles/mock_composition_shark.tsv",
         dalu_bat=os.path.join(outdir, "dalu_bat/dalu_bat_final_taxa.tsv"),
         obibar_bat=os.path.join(outdir, "obibar_bat/obibar_bat_final_taxa.tsv"),
         vtam_bat=os.path.join(outdir, "vtam_bat/vtam_bat_final_taxa.tsv"),
         dalu_fish=os.path.join(outdir, "dalu_fish/dalu_fish_final_taxa.tsv"),
         obibar_fish=os.path.join(outdir, "obibar_fish/obibar_fish_final_taxa.tsv"),
         vtam_fish=os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+        dalu_shark=os.path.join(outdir, "dalu_shark/dalu_shark_final_taxa.tsv"),
+        obibar_shark=os.path.join(outdir, "obibar_shark/obibar_shark_final_taxa.tsv"),
+        vtam_shark=os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
     output:
         os.path.join(outdir, "count_precision_sensitivity/control_counts.tsv"),
     shell:
@@ -26,5 +31,8 @@ rule count_prec_sensi:
         perl scripts/add_filters.pl -asv {input.dalu_fish} -id_col 0 -first_sample_col 1 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_fish} -mock_composition {input.mock_fish} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
         perl scripts/add_filters.pl -asv {input.obibar_fish} -id_col 0 -first_sample_col 1 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_fish} -mock_composition {input.mock_fish} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
         perl scripts/add_filters.pl -asv {input.vtam_fish} -id_col 0 -first_sample_col 4 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_fish} -mock_composition {input.mock_fish} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.dalu_shark} -id_col 0 -first_sample_col 2 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_shark} -mock_composition {input.mock_shark} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.obibar_shark} -id_col 0 -first_sample_col 2 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_shark} -mock_composition {input.mock_shark} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.vtam_shark} -id_col 2 -first_sample_col 5 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_shark} -mock_composition {input.mock_shark} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
         """
 
