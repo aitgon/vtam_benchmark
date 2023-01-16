@@ -154,16 +154,15 @@ gunzip -c ${HOME}/Software/process/osf.io/uzk87/taxonomy.tsv.gz > out/vtam_db/ta
 
 Download 16S blast db and taxonomy file
 ~~~
-mkdir -p ${HOME}/Software/process
-wget -c -q -r osf.io/6bjw8/download -O ${HOME}/Software/process/osf.io/6bjw8/rdp_taxonomy.tsv.gz
-wget -c -q -r osf.io/g5v6y/download -O ${HOME}/Software/process/osf.io/g5v6y/rdp_16StrainssetNo18_vtam.tar.gz
+mkdir -p ${HOME}/Software/public
+wget -c -q -r osf.io/6bjw8/download -P ${HOME}/Software/public/
+wget -c -q -r osf.io/g5v6y/download -P ${HOME}/Software/public/
 ~~~
 
 Extract the taxonomy and the 16S blast db.
 ~~~
-mkdir -p out/vtam_db/rdp_16StrainssetNo18_vtam
-tar -zxvf ${HOME}/Software/process/osf.io/g5v6y/rdp_16StrainssetNo18_vtam.tar.gz -C out/vtam_db/rdp_16StrainssetNo18_vtam
-gunzip -c ${HOME}/Software/process/osf.io/6bjw8/rdp_taxonomy.tsv.gz > out/vtam_db/rdp_taxonomy.tsv
+gunzip -c ${HOME}/Software/public/osf.io/6bjw8/download >out/vtam_db/rdp_taxonomy.tsv
+tar -zxvf ${HOME}/Software/public/osf.io/g5v6y/download -C out/vtam_db
 ~~~
 
 ## Prepare data 
