@@ -2,6 +2,7 @@ rule all_prep_shark_dalu:
     input:
         os.path.join(outdir, "dalu_shark/fastq/16S1-Tneg_pcr_REQPOL-3_fw.fastq"),
 
+
 rule gzip:
     input:
         os.path.join(outdir, "dalu_shark/fastq/16S1-Tneg_pcr_REQPOL-3_fw.fastq"),
