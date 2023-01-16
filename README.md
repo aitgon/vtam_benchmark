@@ -205,6 +205,14 @@ You must repeat the previous commands with min read counts 10, 40 and 60.
 Then you run this command:
 ~~~
 python scripts/plt_sensitivity_precision.py out_min_readcount_0/summary_min_readcount_0/control_counts.tsv out_min_readcount_10/summary/control_counts.tsv out_min_readcount_40/summary/control_counts.tsv out_min_readcount_60/summary/control_counts.tsv
+
+
+python scripts/plt_sensitivity_precision_EM.py
+out/min_readcount_0/summary_min_readcount_0/control_counts.tsv
+out/min_readcount_10/summary_min_readcount_10/control_counts.tsv
+out/min_readcount_40/summary_min_readcount_40/control_counts.tsv
+out/min_readcount_60/summary_min_readcount_60/control_counts.tsv
+out
 ~~~
 
 # Datasets
