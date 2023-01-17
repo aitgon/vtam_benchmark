@@ -191,17 +191,45 @@ rm -r out/min_readcount_10_before_analyse/vtam_shark/merged
 
 Analyse VTAM, DALU  - bat, fish, shark
 
-```
+~~~
 snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
-```
+~~~
 
 Analyse ObiBAR, make plots  - bat, fish, shark
-```
-snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
-```
 
-You must repeat the previous commands with min read counts 10, 40 and 60.
+~~~
+snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=0 outdir=out/min_readcount_0 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+~~~
+
+You must repeat the previous "snakemake" commands with min read counts 10, 40 and 60 as shown here:
+
+min_readcount 10
+
+~~~
+snakemake -p -c all -s 01snkfl_prep.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=10 outdir=out/min_readcount_10 container=out/vtam_benchmark.sif --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=10 outdir=out/min_readcount_10 container=out/vtam_benchmark.sif taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=10 outdir=out/min_readcount_10 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+~~~
+
+min_readcount 40
+
+~~~
+snakemake -p -c all -s 01snkfl_prep.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=40 outdir=out/min_readcount_40 container=out/vtam_benchmark.sif --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=40 outdir=out/min_readcount_40 container=out/vtam_benchmark.sif taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=40 outdir=out/min_readcount_40 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+~~~
+
+min_readcount 60
+
+~~~
+snakemake -p -c all -s 01snkfl_prep.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="${HOME}"/Software/process public_data_dir="${HOME}"/Software/public min_readcount=60 outdir=out/min_readcount_60 container=out/vtam_benchmark.sif --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+snakemake -p -c all -s 02snkfl_analysis_vtam_dalu.yml --config process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=60 outdir=out/min_readcount_60 container=out/vtam_benchmark.sif taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_bat=out/data_bat data_fish=out/data_fish data_shark=out/data_shark process_data_dir="{HOME}"/Software/process public_data_dir="{HOME}"/Software/public min_readcount=60 outdir=out/min_readcount_60 container=out/vtam_benchmark.sif taxonomy=out/vtam_db/taxonomy.tsv blastdbdir=out/vtam_db/coi_blast_db blastdbname=coi_blast_db_20200420 taxonomy_16S=out/vtam_db/rdp_taxonomy.tsv blastdbdir_16S=out/vtam_db/rdp_16StrainssetNo18_vtam blastdbname_16S=16S_rdp_db --resources db_bat=1 db_fish=1 db_shark=1 --use-singularity
+~~~
+
+
 Then you run this command:
+
 ~~~
 python scripts/plt_sensitivity_precision.py out_min_readcount_0/summary_min_readcount_0/control_counts.tsv out_min_readcount_10/summary/control_counts.tsv out_min_readcount_40/summary/control_counts.tsv out_min_readcount_60/summary/control_counts.tsv
 
