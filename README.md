@@ -231,15 +231,12 @@ snakemake -p -c all -s 03snkfl_analysis_obibar_plots.yml --config data_bat=out/d
 Then you run this command:
 
 ~~~
-python scripts/plt_sensitivity_precision.py out_min_readcount_0/summary_min_readcount_0/control_counts.tsv out_min_readcount_10/summary/control_counts.tsv out_min_readcount_40/summary/control_counts.tsv out_min_readcount_60/summary/control_counts.tsv
-
-
-python scripts/plt_sensitivity_precision_EM.py
-out/min_readcount_0/summary_min_readcount_0/control_counts.tsv
-out/min_readcount_10/summary_min_readcount_10/control_counts.tsv
-out/min_readcount_40/summary_min_readcount_40/control_counts.tsv
-out/min_readcount_60/summary_min_readcount_60/control_counts.tsv
-out
+export MINREAD0_TSV_PATH=out/min_readcount_0/summary_min_readcount_0/control_counts.tsv
+export MINREAD10_TSV_PATH=out/min_readcount_10/summary_min_readcount_10/control_counts.tsv
+export MINREAD40_TSV_PATH=out/min_readcount_40/summary_min_readcount_40/control_counts.tsv
+export MINREAD60_TSV_PATH=out/min_readcount_60/summary_min_readcount_60/control_counts.tsv
+export OUTDIR=out
+singularity exec -u out/vtam_benchmark.sif python scripts/plt_sensitivity_precision.py ${MINREAD0_TSV_PATH} ${MINREAD10_TSV_PATH} ${MINREAD40_TSV_PATH} ${MINREAD60_TSV_PATH} ${OUTDIR}
 ~~~
 
 # Datasets
