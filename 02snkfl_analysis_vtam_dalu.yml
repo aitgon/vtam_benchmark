@@ -5,6 +5,9 @@ outdir = config['outdir']
 process_data_dir = config['process_data_dir']
 public_data_dir = config['public_data_dir']
 taxonomy = config['taxonomy']
+blastdbdir_16S = config['blastdbdir_16S']
+blastdbname_16S = config['blastdbname_16S']
+taxonomy_16S = config['taxonomy_16S']
 
 fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
 fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']
@@ -14,6 +17,8 @@ bat_zip_lst = ['64342', '64342', '64341', '64340', '64339']
 bat_fastq_lst = ['JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
 bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
 
+shark_fastq_lst = ['reqpol_R1_fw.fastq', 'reqpol_R1_rv.fastq', 'reqpol_R2_fw.fastq', 'reqpol_R2_rv.fastq', 'reqpol_R3_fw.fastq', 'reqpol_R3_rv.fastq']
+
 if "container" in config:
     container: config['container']
 
@@ -22,49 +27,20 @@ rule all:
         # dalu
         os.path.join(outdir, "dalu_fish/dalu_fish_final_taxa.tsv"),
         os.path.join(outdir, "dalu_bat/dalu_bat_final_taxa.tsv"),
+        os.path.join(outdir, "dalu_shark/dalu_shark_final_taxa.tsv"),
         # vtam bat
         os.path.join(outdir, "vtam_bat/vtam_bat_final_taxa.tsv"),
         # vtam fish
         os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+        # vtam shark
+        os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
 
 include: 'snakefiles/snkfl_analyse_dalu.yml'
 include: 'snakefiles/snkfl_analyse_fish_vtam_pool.yml'
 include: 'snakefiles/snkfl_analyse_fish_vtam_zfzr.yml'
 include: 'snakefiles/snkfl_analyse_fish_vtam_mfzr.yml'
 include: 'snakefiles/snkfl_analyse_bat_vtam.yml'
-
-#rule gunzip_taxonomy:
-#    input:
-#        gz=os.path.join(process_data_dir, "osf.io/uzk87/taxonomy.tsv.gz"),
-#    output:
-#        tsv=os.path.join(outdir, "vtam_db/taxonomy.tsv"),
-#    shell:
-#        """gunzip -c {input.gz} > {output.tsv}"""
-#
-#rule wget_taxonomy:
-#    output:
-#        gz=os.path.join(process_data_dir, "osf.io/uzk87/taxonomy.tsv.gz"),
-#    params:
-#        url="osf.io/uzk87/download",
-#        public_data_dir_path=public_data_dir,
-#    shell:
-#        "wget -nc -q -r {params.url} -O {output.gz}"
-#
-#rule untar_blast_db:
-#    input:
-#        gz=os.path.join(process_data_dir, "osf.io/kw9ms/coi_blast_db_20200420.tar.gz"),
-#    output:
-#        untar=os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
-#    shell:
-#        "tar -zxvf {input.gz} -C $(dirname {output.untar})"
-#
-#rule wget_blast_db:
-#    output:
-#        gz=os.path.join(process_data_dir, "osf.io/kw9ms/coi_blast_db_20200420.tar.gz"),
-#    params:
-#        url="osf.io/kw9ms/download",
-#        public_data_dir_path=public_data_dir,
-#    shell:
-#        "wget -nc -q -r {params.url} -O {output.gz}"
+include: 'snakefiles/snkfl_analyse_dalu_shark.yml'
+include: 'snakefiles/snkfl_analyse_shark_vtam.yml'
 
 

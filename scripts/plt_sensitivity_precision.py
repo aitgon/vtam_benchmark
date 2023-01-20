@@ -2,23 +2,22 @@ import os
 import pathlib
 import sys
 
-import seaborn
 import pandas
 import seaborn
+# import seaborn
 from matplotlib import pyplot as plt
 
 #%% Input and output
-# minread0_tsv_path = "min_read_count_0_10_20_50/control_counts_minread_count0.tsv"
-# minread10_tsv_path = "min_read_count_0_10_20_50/control_counts_minread_count10.tsv"
-# minread20_tsv_path = "min_read_count_0_10_20_50/control_counts_minread_count20.tsv"
-# minread60_tsv_path = "min_read_count_0_10_20_50/control_counts_minread_count60.tsv"
+# minread0_tsv_path = "out/min_readcount_0/summary_min_readcount_0/control_counts.tsv"
+# minread10_tsv_path = "out/min_readcount_10/summary_min_readcount_10/control_counts.tsv"
+# minread40_tsv_path = "out/min_readcount_40/summary_min_readcount_40/control_counts.tsv"
+# minread60_tsv_path = "out/min_readcount_60/summary_min_readcount_60/control_counts.tsv"
+# outdir = "out"
 
-precision_bat_png_path = "precision_bat.png"
-precision_fish_png_path = "precision_fish.png"
-
+#%%
 minread0_tsv_path = sys.argv[1]
 minread10_tsv_path = sys.argv[2]
-minread20_tsv_path = sys.argv[3]
+minread40_tsv_path = sys.argv[3]
 minread60_tsv_path = sys.argv[4]
 outdir = sys.argv[5]
 pathlib.Path(outdir).mkdir(parents=True, exist_ok=True)
@@ -28,19 +27,20 @@ df0 = pandas.read_csv(minread0_tsv_path, sep="\t")
 df0['Min. read count'] = 0
 df10 = pandas.read_csv(minread10_tsv_path, sep="\t")
 df10['Min. read count'] = 10
-df20 = pandas.read_csv(minread20_tsv_path, sep="\t")
-df20['Min. read count'] = 20
+df40 = pandas.read_csv(minread40_tsv_path, sep="\t")
+df40['Min. read count'] = 40
 df60 = pandas.read_csv(minread60_tsv_path, sep="\t")
 df60['Min. read count'] = 60
 
 #%%
 cat_df = pandas.concat([df0, df10], axis=0)
-cat_df = pandas.concat([cat_df, df20], axis=0)
+cat_df = pandas.concat([cat_df, df40], axis=0)
 cat_df = pandas.concat([cat_df, df60], axis=0)
 cat_df.reset_index(inplace=True)
 
 cat_df.replace('bat', 'Bat', inplace=True)
 cat_df.replace('fish', 'Fish', inplace=True)
+cat_df.replace('shark', 'Shark', inplace=True)
 
 #%%
 cat_df.rename({'precision (TP/(FP+TP)': 'Precision (TP/(FP+TP)'}, axis=1, inplace=True)
@@ -57,19 +57,23 @@ vtam_precision_dic['Bat'] = cat_df.loc[(cat_df['Pipeline'] == "vtam") & (cat_df[
 vtam_sensitivity_dic['Bat'] = cat_df.loc[(cat_df['Pipeline'] == "vtam") & (cat_df['Dataset'] == "Bat") & (cat_df['Min. read count'] == 10), 'Sensitivity (TP/(TP+FN)'].values[0]
 vtam_precision_dic['Fish'] = cat_df.loc[(cat_df['Pipeline'] == "vtam") & (cat_df['Dataset'] == "Fish") & (cat_df['Min. read count'] == 60), 'Precision (TP/(FP+TP)'].values[0]
 vtam_sensitivity_dic['Fish'] = cat_df.loc[(cat_df['Pipeline'] == "vtam") & (cat_df['Dataset'] == "Fish") & (cat_df['Min. read count'] == 60), 'Sensitivity (TP/(TP+FN)'].values[0]
+vtam_precision_dic['Shark'] = cat_df.loc[(cat_df['Pipeline'] == "vtam") & (cat_df['Dataset'] == "Shark") & (cat_df['Min. read count'] == 40), 'Precision (TP/(FP+TP)'].values[0]
+vtam_sensitivity_dic['Shark'] = cat_df.loc[(cat_df['Pipeline'] == "vtam") & (cat_df['Dataset'] == "Shark") & (cat_df['Min. read count'] == 40), 'Sensitivity (TP/(TP+FN)'].values[0]
 
 cat_df = cat_df.loc[cat_df['Pipeline'] != "vtam"]
 
 #%%
 seaborn.set_theme(style="darkgrid")
 
-datasets = ["Bat", "Fish"]
+datasets = ["Bat", "Fish", "Shark"]
 
 for ds in datasets:
     if ds == "Bat":
         text_label = "VTAM read count cutoff=60"
     elif ds == "Fish":
         text_label = "VTAM read count cutoff=10"
+    elif ds == "Shark":
+        text_label = "VTAM read count cutoff=40"
     else:
         sys.exit(1)
     plot_df = cat_df.loc[cat_df['Dataset'] == ds, ]
@@ -80,7 +84,10 @@ for ds in datasets:
     plt.text(1, vtam_precision_dic[ds]-0.05, text_label, horizontalalignment='right', size='medium', color='blue', weight='semibold')
     plt.title("{} data set".format(ds))
     plt.ylim([0, 1.1])
-    plt.legend(loc='upper center',  title='Read count cutoff', framealpha=1, facecolor='white')
+    legend_loc = 'upper center'
+    if ds == "Shark":
+        legend_loc = "center left"
+    plt.legend(loc=legend_loc,  title='Read count cutoff', framealpha=1, facecolor='white')
     plt.tight_layout()
     preci_png_path = os.path.join(outdir, "precision_{}.png".format(ds))
     plt.savefig(preci_png_path)
