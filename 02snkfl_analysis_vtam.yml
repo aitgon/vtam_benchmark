@@ -1,6 +1,5 @@
 blastdbdir = config['blastdbdir']
 blastdbname = config['blastdbname']
-min_readcount = config['min_readcount']
 outdir = config['outdir']
 process_data_dir = config['process_data_dir']
 public_data_dir = config['public_data_dir']
@@ -24,23 +23,53 @@ if "container" in config:
 
 rule all:
     input:
-        # dalu
-        os.path.join(outdir, "dalu_fish/dalu_fish_final_taxa.tsv"),
-        os.path.join(outdir, "dalu_bat/dalu_bat_final_taxa.tsv"),
-        os.path.join(outdir, "dalu_shark/dalu_shark_final_taxa.tsv"),
         # vtam bat
         os.path.join(outdir, "vtam_bat/vtam_bat_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_bat/all_asv_vtam_bat.tsv"),
         # vtam fish
         os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
         # vtam shark
         os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv")
 
-include: 'snakefiles/snkfl_analyse_dalu.yml'
+        
+rule sqlite_variants_bat:
+    input:
+        os.path.join(outdir, "vtam_bat/vtam_bat_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_bat/all_asv_vtam_bat.tsv"),
+    params:
+        os.path.join(outdir, "vtam_bat/db_bat.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+
+
+rule sqlite_variants_fish:
+    input:
+        os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+        
+
+rule sqlite_variants_shark:
+    input:
+        os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+
 include: 'snakefiles/snkfl_analyse_fish_vtam_pool.yml'
 include: 'snakefiles/snkfl_analyse_fish_vtam_zfzr.yml'
 include: 'snakefiles/snkfl_analyse_fish_vtam_mfzr.yml'
 include: 'snakefiles/snkfl_analyse_bat_vtam.yml'
-include: 'snakefiles/snkfl_analyse_dalu_shark.yml'
 include: 'snakefiles/snkfl_analyse_shark_vtam.yml'
 
 

@@ -38,7 +38,7 @@ rule add_filters_shark:
     params:
         min_readcount=min_readcount,
     shell:
-        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 0 -filter_codon_stop 0 -filter_chimera 1 -min_readcount {params.min_readcount}"""
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 0 -filter_codon_stop 0 -filter_chimera 1 -min_readcount {params.min_readcount}"""
 
 rule pool_replicates_shark:
     input:

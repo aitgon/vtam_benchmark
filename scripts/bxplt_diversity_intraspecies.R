@@ -25,8 +25,8 @@ library(cowplot)
 
 
 if(0){
-setwd("/home/meglecz/vtam_benchmark-feature-shark/out/min_readcount_0/test_bxplt")
-wd = "/home/meglecz/vtam_benchmark-feature-shark/out/min_readcount_0/test_bxplt"
+setwd("/home/meglecz/vtam_benchmark/EM_tmp/summary_min_readcount_0")
+wd = "/home/meglecz/vtam_benchmark/EM_tmp/summary_min_readcount_0"
 species_bat_path = file.path(wd, 'bat_sp.tsv')
 dcb_path = file.path(wd, 'dalu_bat_final_taxa.tsv')
 dcf_path = file.path(wd, 'dalu_fish_final_taxa.tsv')
@@ -34,8 +34,8 @@ ocb_path = file.path(wd, 'obibar_bat_final_taxa.tsv')
 ocf_path = file.path(wd, 'obibar_fish_final_taxa.tsv')
 vtamb_path = file.path(wd, 'vtam_bat_final_taxa.tsv')
 vtamf_path = file.path(wd, 'vtam_fish_final_taxa.tsv')
-bxplt_asvrichness_path = "bxplt_asvrichness.png"
-bxplt_betadiversity_path = "bxplt_betadiversity.png"
+bxplt_asvrichness_path = "bxplt_asvrichness_local.png"
+bxplt_betadiversity_path = "bxplt_betadiversity_local.png"
 dcs_path = file.path(wd, 'dalu_shark_final_taxa.tsv')
 ocs_path = file.path(wd, 'obibar_shark_final_taxa.tsv')
 vtams_path = file.path(wd, 'vtam_shark_final_taxa.tsv')
@@ -43,15 +43,15 @@ vtams_path = file.path(wd, 'vtam_shark_final_taxa.tsv')
 species_bat_path = args[1]
 dcb_path = args[2]
 dcf_path = args[3]
-ocb_path = args[4]
-ocf_path = args[5]
-vtamb_path = args[6]
-vtamf_path = args[7]
-bxplt_asvrichness_path = args[8]
-bxplt_betadiversity_path = args[9]
-dcs_path = args[10]
-ocs_path = args[11]
-vtams_path = args[12]
+dcs_path = args[4]
+ocb_path = args[5]
+ocf_path = args[6]
+ocs_path = args[7]
+vtamb_path = args[8]
+vtamf_path = args[9]
+vtams_path = args[10]
+bxplt_asvrichness_path = args[11]
+bxplt_betadiversity_path = args[12]
 }
 
 
@@ -249,7 +249,7 @@ title = "Comparison of Beta diversities"
 ylab = "Beta diversity"
 xlab = "Pipelines"
 label_font_size = 11
-text_font_size = 8
+text_font_size = 9
 ylim_max = 1.25
 p = ggplot(BetaDF, aes(x=Pipeline, y=distance, fill=Pipeline))
 
@@ -280,7 +280,7 @@ p = p + stat_compare_means(method = "t.test", comparisons = my_comparisons, labe
 #p
 
 #dir.create("out", showWarnings = F)
-ggsave(bxplt_betadiversity_path, width = 12, height = 12, units = "cm")
+ggsave(bxplt_betadiversity_path, width = 15, height = 12, units = "cm")
 
 if(0){
 ##### Pairwise tests 28/09/2022
