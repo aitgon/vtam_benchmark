@@ -45,13 +45,13 @@ include: "snkfl_analyse_dalu_zfzr.yml"
 include: "snkfl_analyse_dalu_mfzr.yml"
 include: "snkfl_analyse_dalu_bat.yml"
 
-rule sqlite_variants_zfzr:
-    input:
-        os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
-    output:
-        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
-    params:
-        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
-    shell:
-        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+#rule sqlite_variants_zfzr:
+#    input:
+#        os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+#    output:
+#        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+#    params:
+#        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+#    shell:
+#        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
 

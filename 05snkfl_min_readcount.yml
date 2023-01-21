@@ -1,0 +1,351 @@
+blastdbdir_16S = config['blastdbdir_16S']
+blastdbname_16S = config['blastdbname_16S']
+taxonomy_16S = config['taxonomy_16S']
+blastdbdir = config['blastdbdir']
+blastdbname = config['blastdbname']
+taxonomy = config['taxonomy']
+min_readcount = config['min_readcount']
+outdir = config['outdir']
+process_data_dir = config['process_data_dir']
+public_data_dir = config['public_data_dir']
+
+
+fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
+#fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']
+#fish_dic = dict(zip(fish_fastq_lst, fish_tgz_lst))
+
+#bat_zip_lst = ['64342', '64342', '64341', '64340', '64339']
+bat_fastq_lst = ['JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
+#bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
+
+shark_fastq_lst = ['reqpol_R1_fw.fastq', 'reqpol_R1_rv.fastq', 'reqpol_R2_fw.fastq', 'reqpol_R2_rv.fastq', 'reqpol_R3_fw.fastq', 'reqpol_R3_rv.fastq']
+
+if "container" in config:
+    container: config['container']
+
+
+rule all:
+    input:
+        # dalu
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_bat_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_fish_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_shark_final_taxa.tsv"),
+        # obibar
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_bat_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_fish_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_shark_final_taxa.tsv"),
+        # vtam
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_bat_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_fish_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_shark_final_taxa.tsv"),
+        # count precision and sensitivity
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/control_counts.tsv"),
+        # plots
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/bxplt_asvrichness.png"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/bxplt_betadiversity_intraspecies.png"),
+
+
+# Count precision and sensitivity
+rule count_prec_sensi:
+    input:
+        samples_bat="metafiles/sample_types_bat.tsv",
+        mock_bat="metafiles/mock_composition_bat.tsv",
+        samples_fish="metafiles/sample_types_fish.tsv",
+        mock_fish="metafiles/mock_composition_fish.tsv",
+        samples_shark="metafiles/sample_types_shark.tsv",
+        mock_shark="metafiles/mock_composition_shark.tsv",
+        dalu_bat=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_bat_final_taxa.tsv"),
+        obibar_bat=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_bat_final_taxa.tsv"),
+        vtam_bat=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_bat_final_taxa.tsv"),
+        dalu_fish=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_fish_final_taxa.tsv"),
+        obibar_fish= os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_fish_final_taxa.tsv"),
+        vtam_fish=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_fish_final_taxa.tsv"),
+        dalu_shark=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_shark_final_taxa.tsv"),
+        obibar_shark=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_shark_final_taxa.tsv"),
+        vtam_shark=os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_shark_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/control_counts.tsv"),
+    shell:
+        """
+        echo 'Pipeline	Dataset	Expected_mock	TP_mock	FN_mock	FP_mock	FP_negative_contol	FP_all	precision (TP/(FP+TP)	sensitivity (TP/(TP+FN)' >{output[0]}
+        perl scripts/add_filters.pl -asv {input.dalu_bat} -id_col 0 -first_sample_col 2 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_bat} -mock_composition {input.mock_bat} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.obibar_bat} -id_col 0 -first_sample_col 2 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_bat} -mock_composition {input.mock_bat} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.vtam_bat} -id_col 2 -first_sample_col 5 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_bat} -mock_composition {input.mock_bat} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.dalu_fish} -id_col 0 -first_sample_col 1 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_fish} -mock_composition {input.mock_fish} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.obibar_fish} -id_col 0 -first_sample_col 1 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_fish} -mock_composition {input.mock_fish} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.vtam_fish} -id_col 0 -first_sample_col 4 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_fish} -mock_composition {input.mock_fish} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.dalu_shark} -id_col 0 -first_sample_col 2 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_shark} -mock_composition {input.mock_shark} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.obibar_shark} -id_col 0 -first_sample_col 2 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_shark} -mock_composition {input.mock_shark} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        perl scripts/add_filters.pl -asv {input.vtam_shark} -id_col 2 -first_sample_col 5 -motif_after_last_sample 'clusterid' -seq_col '-1' -sample_types {input.samples_shark} -mock_composition {input.mock_shark} -count_false_occ 1 -write_asv 0 -add_cluster 0 >>{output[0]}
+        """
+
+# Make diversity plots
+rule plots:
+    input:
+        "metafiles/bat_sp.tsv",
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_bat_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_fish_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_shark_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_bat_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_fish_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_shark_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_bat_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_fish_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_shark_final_taxa.tsv"),
+    output:
+        # plots
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/bxplt_asvrichness.png"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/bxplt_betadiversity_intraspecies.png"),
+    shell:
+        """Rscript scripts/bxplt_diversity_intraspecies.R {input[0]} {input[1]} {input[2]} {input[3]} {input[4]} {input[5]} {input[6]} {input[7]} {input[8]} {input[9]} {output[0]} {output[1]}"""
+
+
+# DALU bat
+rule taxassign_min_read_count_dalu_bat:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_bat/asv_table_final.tsv"),
+        taxonomy,
+        os.path.join(blastdbdir, blastdbname + ".nsq"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_bat_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_bat/db_bat.sqlite"),
+        blastdbdir,
+        blastdbname,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule filter_min_read_count_dalu_bat:
+    input:
+        os.path.join(outdir, "dalu_bat/filters/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_bat/all_asv_vtam_bat.tsv"),
+        "metafiles/sample_types_bat.tsv",
+        "metafiles/mock_composition_bat.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_bat/asv_table_final.tsv"),
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/dalu_bat_add_filters.log"),
+    params:
+        min_readcount=min_readcount,
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -mock_compositon {input[3]} -match_seqid_to_vtam 1 -filter_indel 1 -filter_codon_stop 1 -min_readcount {params.min_readcount}"""
+
+# DALU shark
+rule taxassign_min_read_count_dalu_shark:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_shark/asv_table_final.tsv"),
+        taxonomy_16S,
+        os.path.join(blastdbdir_16S, blastdbname_16S + ".nsq"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_shark_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+        blastdbdir_16S,
+        blastdbname_16S,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule filter_min_read_count_dalu_shark:
+    input:
+        os.path.join(outdir, "dalu_shark/filters/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv"),
+        "metafiles/sample_types_shark.tsv",
+        "metafiles/mock_composition_shark.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_shark/asv_table_final.tsv"),
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/dalu_shark_add_filters.log"),
+    params:
+        min_readcount=min_readcount,
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -mock_compositon {input[3]} -match_seqid_to_vtam 1 -filter_indel 0 -filter_codon_stop 0 -min_readcount {params.min_readcount}"""
+
+# DALU fish
+rule taxassign_fish_dalu:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_fish/asv_table_final.tsv"),
+        taxonomy,
+        os.path.join(blastdbdir, blastdbname + ".nsq"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/dalu_fish_final_taxa.tsv"),
+    log: os.path.join(outdir, "logs/dalu_fish/vtam_taxassign.log"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+        blastdbdir,
+        blastdbname,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+        
+
+rule pool_marker_mfzr_zfzr_dalu:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_fish_zfzr/asv_table_final.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_fish_mfzr/asv_table_final.tsv"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_fish/asv_table_final.tsv"),
+    shell:
+        """perl scripts/pool_markers.pl -asv1 {input[0]} -asv2 {input[1]} -out {output[0]} -varid_col 0 -first_sample_col 2 -col_n_after_last_sample 3 -readcount 1"""
+
+
+
+rule filter_min_read_count_dalu_fish_zfzr:
+    input:
+        os.path.join(outdir, "dalu_fish/filters_zfzr/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+        "metafiles/sample_types_fish.tsv",
+        "metafiles/mock_composition_fish_zfzr.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_fish_zfzr/asv_table_final.tsv"),
+    params:
+        min_readcount=min_readcount,
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/dalu_fish_zfzr_add_filters.log"),
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -mock_compositon {input[3]} -match_seqid_to_vtam 1 -filter_indel 1 -filter_codon_stop 1 -min_readcount {params.min_readcount}"""
+
+
+
+rule filter_min_read_count_dalu_fish_mfzr:
+    input:
+        os.path.join(outdir, "dalu_fish/filters_mfzr/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+        "metafiles/sample_types_fish.tsv",
+        "metafiles/mock_composition_fish_mfzr.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/dalu_fish_mfzr/asv_table_final.tsv"),
+    params:
+        min_readcount=min_readcount,
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/dalu_fish_mfzr_add_filters.log"),
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -mock_compositon {input[3]} -match_seqid_to_vtam 1 -filter_indel 1 -filter_codon_stop 1 -min_readcount {params.min_readcount}"""
+
+
+# obibar bat
+rule taxassign_min_read_count_obibar_bat:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_bat/asv_table_final.tsv"),
+        taxonomy,
+        os.path.join(blastdbdir, blastdbname + ".nsq"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_bat_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_bat/db_bat.sqlite"),
+        blastdbdir,
+        blastdbname,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule filter_min_read_count_obibar_bat:
+    input:
+        os.path.join(outdir, "obibar_bat/filters/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_bat/all_asv_vtam_bat.tsv"),
+        "metafiles/sample_types_bat.tsv",
+        "metafiles/mock_composition_bat.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_bat/asv_table_final.tsv"),
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/obibar_bat_add_filters.log"),
+    params:
+        min_readcount=min_readcount,
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 1 -filter_codon_stop 1 -filter_chimera 1 -min_readcount {params.min_readcount}"""
+
+
+# obibar shark
+rule taxassign_min_read_count_obibar_shark:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_shark/asv_table_final.tsv"),
+        taxonomy_16S,
+        os.path.join(blastdbdir_16S, blastdbname_16S + ".nsq"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_shark_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+        blastdbdir_16S,
+        blastdbname_16S,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule filter_min_read_count_obibar_shark:
+    input:
+        os.path.join(outdir, "obibar_shark/filters/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv"),
+        "metafiles/sample_types_shark.tsv",
+        "metafiles/mock_composition_shark.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_shark/asv_table_final.tsv"),
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/obibar_shark_add_filters.log"),
+    params:
+        min_readcount=min_readcount,
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 0 -filter_codon_stop 0 -filter_chimera 1 -min_readcount {params.min_readcount}"""
+
+# obibar fish
+rule taxassign_fish_obibar:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_fish/asv_table_final.tsv"),
+        taxonomy,
+        os.path.join(blastdbdir, blastdbname + ".nsq"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/obibar_fish_final_taxa.tsv"),
+    log: os.path.join(outdir, "logs/obibar_fish/vtam_taxassign.log"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+        blastdbdir,
+        blastdbname,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+        
+
+rule pool_marker_mfzr_zfzr_obibar:
+    input:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_fish_zfzr/asv_table_final.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_fish_mfzr/asv_table_final.tsv"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_fish/asv_table_final.tsv"),
+    shell:
+        """perl scripts/pool_markers.pl -asv1 {input[0]} -asv2 {input[1]} -out {output[0]} -varid_col 0 -first_sample_col 2 -col_n_after_last_sample 3 -readcount 1"""
+
+
+
+rule filter_min_read_count_obibar_fish_zfzr:
+    input:
+        os.path.join(outdir, "obibar_fish/filters_zfzr/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+        "metafiles/sample_types_fish.tsv",
+        "metafiles/mock_composition_fish_zfzr.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_fish_zfzr/asv_table_final.tsv"),
+    params:
+        min_readcount=min_readcount,
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/obibar_fish_zfzr_add_filters.log"),
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 1 -filter_codon_stop 1 -filter_chimera 1 -min_readcount {params.min_readcount}"""
+
+
+
+rule filter_min_read_count_obibar_fish_mfzr:
+    input:
+        os.path.join(outdir, "obibar_fish/filters_mfzr/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+        "metafiles/sample_types_fish.tsv",
+        "metafiles/mock_composition_fish_mfzr.tsv",
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/filters/obibar_fish_mfzr/asv_table_final.tsv"),
+    params:
+        min_readcount=min_readcount,
+    log: os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/logs/obibar_fish_mfzr_add_filters.log"),
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 1 -filter_codon_stop 1 -filter_chimera 1 -min_readcount {params.min_readcount}"""
+
+
+rule cp_vtam:
+    input:
+        os.path.join(outdir, "vtam_bat/vtam_bat_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_bat_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_fish_final_taxa.tsv"),
+        os.path.join(outdir, "summary_min_readcount_" + str(min_readcount) + "/vtam_shark_final_taxa.tsv"),
+    shell:
+        """cp {input[0]} {output[0]}
+cp {input[1]} {output[1]}
+cp {input[2]} {output[2]}
+"""
