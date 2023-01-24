@@ -4,7 +4,9 @@ author: Emese Meglécz, Aitor González
 date: Jan 23, 2023
 ---
 
-This is the code to reproduce the benchmark analysis of metabarcoding software.
+This is the code to reproduce the benchmark analysis of metabarcoding software in this publication:
+
+<https://doi.org/10.1101/2020.11.06.371187>
 
 # Quick start
 
@@ -176,7 +178,7 @@ rm -r out/vtam_shark/merged
 ~~~
 
 
-## Analyse 
+## Analysis
 
 VTAM - bat, fish, shark
 
