@@ -1,0 +1,125 @@
+import pathlib
+import os
+import subprocess
+import shlex
+import shutil
+
+outdir = config['outdir']
+min_readcount = config['min_readcount']
+
+if "container" in config:
+    container: config['container']
+
+rule all_analyse_obibar_shark:
+    input:
+        os.path.join(outdir, "obibar_shark/obibar_shark_final_taxa.tsv"),
+
+rule taxassign_shark:
+    input:
+        os.path.join(outdir, "obibar_shark/obibar_shark_final.tsv"),
+        taxonomy_16S,
+        os.path.join(blastdbdir_16S, blastdbname_16S + ".nsq"),
+    output:
+        os.path.join(outdir, "obibar_shark/obibar_shark_final_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+        blastdbdir_16S,
+        blastdbname_16S,
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule add_filters_shark:
+    input:
+        os.path.join(outdir, "obibar_shark/filters/asv_table_pooled_replicates.tsv"),
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv"),
+        "metafiles/sample_types_shark.tsv",
+    output:
+        os.path.join(outdir, "obibar_shark/obibar_shark_final.tsv"),
+    params:
+        min_readcount=min_readcount,
+    shell:
+        """perl scripts/add_filters.pl -asv {input[0]} -out_asv {output[0]} -id_col 0 -first_sample_col 3 -motif_after_last_sample sequence -seq_col '-1' -all_seqs_vtam {input[1]} -sample_types {input[2]} -match_seqid_to_vtam 1 -filter_indel 0 -filter_codon_stop 0 -filter_chimera 1 -min_readcount {params.min_readcount}"""
+
+rule pool_replicates_shark:
+    input:
+        os.path.join(outdir, "obibar_shark/obiout/motus_obi_taxa2.tsv"),
+        os.path.join(outdir, "obibar_shark/metabarout/obibar_base.csv"),
+        "metafiles/sample_types_shark.tsv",
+    output:
+        os.path.join(outdir, "obibar_shark/filters/asv_table_pooled_replicates.tsv"),
+    params:
+        "16S1",
+    shell:
+        """perl scripts/pool_replicates.pl -asvseq {input[0]} -asvtable {input[1]} -out {output[0]} -sepseq '\t' -septable ';' -samples {input[2]} -marker {params[0]}"""
+
+
+rule metabaR_shark_obi:
+    input:
+        os.path.join(outdir, "obibar_shark/obiout/reads_obi.tsv"),
+        os.path.join(outdir, "obibar_shark/obiout/motus_obi_taxa2.tsv"),
+        "metafiles/pcrs_adapted_to_metabaR_shark.tsv",
+        "metafiles/samples_wo_control_shark.tsv",
+    output:
+        os.path.join(outdir, "obibar_shark/metabarout/obibar_base.csv"),
+    shell:
+        """Rscript scripts/metabaR_shark.R {input[0]} {input[1]} {input[2]} {input[3]} {output[0]}"""
+
+rule shark_adapt_taxa_obi:
+    input:
+        os.path.join(outdir, "obibar_shark/obiout/motus_obi_taxa.tsv"),
+    output:
+        os.path.join(outdir, "obibar_shark/obiout/motus_obi_taxa2.tsv"),
+    shell:
+        """perl scripts/adapt_taxa_bact.pl -in {input[0]} -out {output[0]}"""
+
+rule shark_taxassign_obi:
+    input:
+        os.path.join(outdir, "obibar_shark/obiout/motus_obi.tsv"),
+        taxonomy_16S,
+        os.path.join(blastdbdir_16S, blastdbname_16S + ".nsq"),
+    output:
+        os.path.join(outdir, "obibar_shark/obiout/motus_obi_taxa.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+        blastdbdir_16S,
+        blastdbname_16S,
+    resources: db_shark=1
+    shell:
+        """vtam taxassign --db {params[0]} --asvtable {input[0]} --output {output[0]} --taxonomy {input[1]} --blastdbdir {params[1]} --blastdbname {params[2]} -v"""
+
+rule shark_make_merabaR_input_from_obi:
+    input:
+        os.path.join(outdir, "obibar_shark/obi/shark_obi_results.fasta"),
+        "metafiles/sample_types_shark.tsv",
+    output:
+        os.path.join(outdir, "obibar_shark/obiout/reads_obi.tsv"),
+        os.path.join(outdir, "obibar_shark/obiout/motus_obi.tsv"),
+    shell:
+        """perl scripts/make_merabaR_input_from_obi.pl -obi_fasta {input[0]} -samples {input[1]} -reads {output[0]} -motus {output[1]}"""
+
+rule obibar_shark:
+    input:
+        os.path.join(outdir, "obibar_shark/make_obi_input/obi_input.fasta"),
+    output:
+        os.path.join(outdir, "obibar_shark/obi/shark_obi_results.fasta"),
+    params:
+        os.path.join(outdir, "obibar_shark/obi_db_shark"),
+    shell:
+        """
+rm -rf {params[0]}.obidms
+obi import --fasta {input[0]} {params[0]}/demultiplexed
+obi uniq -m sample {params[0]}/demultiplexed {params[0]}/dereplicated_sequences
+obi annotate -k COUNT -k MERGED_sample {params[0]}/dereplicated_sequences {params[0]}/cleaned_metadata_sequences
+obi grep -p "sequence['COUNT']>=10" {params[0]}/cleaned_metadata_sequences {params[0]}/denoised_sequences
+obi clean -s MERGED_sample -r 0.1 -H {params[0]}/denoised_sequences {params[0]}/cleaned_sequences
+obi export --fasta-output {params[0]}/cleaned_sequences >{output[0]}
+"""
+
+rule make_obi_input_shark:
+    input:
+        os.path.join(outdir, "vtam_shark/sorted/sortedinfo.tsv"),
+    output:
+        os.path.join(outdir, "obibar_shark/make_obi_input/obi_input.fasta"),
+    shell:
+        """perl scripts/make_obi_input.pl -dir $(dirname {input[0]}) -outdir $(dirname {output[0]}) -sorted_info {input[0]} -fw_primer GTGYCAGCMGCCGCGGTAA -rev_primer GGACTACNVGGGTWTCTAAT -experiment shark"""
+

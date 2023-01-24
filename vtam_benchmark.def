@@ -132,6 +132,7 @@ exec /opt/miniconda/envs/myenv/bin/"${@}"
 /opt/miniconda/envs/myenv/bin/pip install snakemake
 /opt/miniconda/envs/myenv/bin/pip install vtam==0.2.0
 /opt/miniconda/envs/myenv/bin/pip install cython
+/opt/miniconda/envs/myenv/bin/pip install seaborn
 /opt/miniconda/envs/myenv/bin/pip install obitools3
 /opt/miniconda/bin/conda install -n myenv -c bioconda blast
 /opt/miniconda/bin/conda install -n myenv -c bioconda vsearch

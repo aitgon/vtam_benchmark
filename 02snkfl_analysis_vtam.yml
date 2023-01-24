@@ -1,0 +1,75 @@
+blastdbdir = config['blastdbdir']
+blastdbname = config['blastdbname']
+outdir = config['outdir']
+process_data_dir = config['process_data_dir']
+public_data_dir = config['public_data_dir']
+taxonomy = config['taxonomy']
+blastdbdir_16S = config['blastdbdir_16S']
+blastdbname_16S = config['blastdbname_16S']
+taxonomy_16S = config['taxonomy_16S']
+
+fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
+fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']
+fish_dic = dict(zip(fish_fastq_lst, fish_tgz_lst))
+
+bat_zip_lst = ['64342', '64342', '64341', '64340', '64339']
+bat_fastq_lst = ['JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
+bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
+
+shark_fastq_lst = ['reqpol_R1_fw.fastq', 'reqpol_R1_rv.fastq', 'reqpol_R2_fw.fastq', 'reqpol_R2_rv.fastq', 'reqpol_R3_fw.fastq', 'reqpol_R3_rv.fastq']
+
+if "container" in config:
+    container: config['container']
+
+rule all:
+    input:
+        # vtam bat
+        os.path.join(outdir, "vtam_bat/vtam_bat_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_bat/all_asv_vtam_bat.tsv"),
+        # vtam fish
+        os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+        # vtam shark
+        os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv")
+
+        
+rule sqlite_variants_bat:
+    input:
+        os.path.join(outdir, "vtam_bat/vtam_bat_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_bat/all_asv_vtam_bat.tsv"),
+    params:
+        os.path.join(outdir, "vtam_bat/db_bat.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+
+
+rule sqlite_variants_fish:
+    input:
+        os.path.join(outdir, "vtam_fish/vtam_fish_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_fish/all_asv_vtam_fish.tsv"),
+    params:
+        os.path.join(outdir, "vtam_fish/db_fish.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+        
+
+rule sqlite_variants_shark:
+    input:
+        os.path.join(outdir, "vtam_shark/vtam_shark_final_taxa.tsv"),
+    output:
+        os.path.join(outdir, "vtam_shark/all_asv_vtam_shark.tsv"),
+    params:
+        os.path.join(outdir, "vtam_shark/db_shark.sqlite"),
+    shell:
+        """sqlite3 -separator $'\t' {params[0]} 'select distinct Variant.id, Variant.sequence from Variant' >{output[0]}"""
+
+include: 'snakefiles/snkfl_analyse_fish_vtam_pool.yml'
+include: 'snakefiles/snkfl_analyse_fish_vtam_zfzr.yml'
+include: 'snakefiles/snkfl_analyse_fish_vtam_mfzr.yml'
+include: 'snakefiles/snkfl_analyse_bat_vtam.yml'
+include: 'snakefiles/snkfl_analyse_shark_vtam.yml'
+
+

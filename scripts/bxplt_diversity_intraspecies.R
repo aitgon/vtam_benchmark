@@ -11,8 +11,8 @@ args = commandArgs(trailingOnly=TRUE)
 #install.packages("cowplot")
 
 print(length(args))
-if (length(args)!=9) {
-  stop("9 arguments must be supplied", call.=FALSE)
+if (length(args)!=12) {
+  stop("12 arguments must be supplied", call.=FALSE)
 }
 
 library(vegan)
@@ -25,8 +25,8 @@ library(cowplot)
 
 
 if(0){
-#setwd("/home/meglecz/vtam_benchmark_local/092022_bxplt")
-wd = "/home/meglecz/vtam_benchmark_local/092022_bxplt"
+setwd("/home/meglecz/vtam_benchmark/EM_tmp/summary_min_readcount_0")
+wd = "/home/meglecz/vtam_benchmark/EM_tmp/summary_min_readcount_0"
 species_bat_path = file.path(wd, 'bat_sp.tsv')
 dcb_path = file.path(wd, 'dalu_bat_final_taxa.tsv')
 dcf_path = file.path(wd, 'dalu_fish_final_taxa.tsv')
@@ -34,18 +34,24 @@ ocb_path = file.path(wd, 'obibar_bat_final_taxa.tsv')
 ocf_path = file.path(wd, 'obibar_fish_final_taxa.tsv')
 vtamb_path = file.path(wd, 'vtam_bat_final_taxa.tsv')
 vtamf_path = file.path(wd, 'vtam_fish_final_taxa.tsv')
-bxplt_asvrichness_path = "bxplt_asvrichness.png"
-bxplt_betadiversity_path = "bxplt_betadiversity.png"
+bxplt_asvrichness_path = "bxplt_asvrichness_local.png"
+bxplt_betadiversity_path = "bxplt_betadiversity_local.png"
+dcs_path = file.path(wd, 'dalu_shark_final_taxa.tsv')
+ocs_path = file.path(wd, 'obibar_shark_final_taxa.tsv')
+vtams_path = file.path(wd, 'vtam_shark_final_taxa.tsv')
 } else {
 species_bat_path = args[1]
 dcb_path = args[2]
 dcf_path = args[3]
-ocb_path = args[4]
-ocf_path = args[5]
-vtamb_path = args[6]
-vtamf_path = args[7]
-bxplt_asvrichness_path = args[8]
-bxplt_betadiversity_path = args[9]
+dcs_path = args[4]
+ocb_path = args[5]
+ocf_path = args[6]
+ocs_path = args[7]
+vtamb_path = args[8]
+vtamf_path = args[9]
+vtams_path = args[10]
+bxplt_asvrichness_path = args[11]
+bxplt_betadiversity_path = args[12]
 }
 
 
@@ -56,18 +62,23 @@ dcb<-read.table(file = dcb_path, sep = '\t', header = TRUE)
 dcb<-dcb[, c(1,14:370)]
 dcf<-read.table(file = dcf_path, sep = '\t', header = TRUE)
 dcf<-dcf[, c(1,2:36)]
+dcs<-read.table(file = dcs_path, sep = '\t', header = TRUE)
+dcs<-dcs[, c(1,3:57,61:65)]
 
 
 ocb<-read.table(file = ocb_path, sep = '\t', header = TRUE)
 ocb<-ocb[, c(1,14:370)]
 ocf<-read.table(file = ocf_path, sep = '\t', header = TRUE)
 ocf<-ocf[, c(1,2:36)]
-
+ocs<-read.table(file = ocs_path, sep = '\t', header = TRUE)
+ocs<-ocs[, c(1,3:57,61:65)]
 
 vtamb<-read.table(file = vtamb_path, sep = '\t', header = TRUE)
 vvb<-vtamb[,c(3,17:373)]
 vtamf<-read.table(file = vtamf_path, sep = '\t', header = TRUE)
 vvf<-vtamf[,c(1,13:47)]
+vtams<-read.table(file = vtams_path, sep = '\t', header = TRUE)
+vvs<-vtams[,c(3,6:24,26:34,36:46,48:68)]
 
 
 #dcb<-read.table(file = "dalu_bat_final_taxa.tsv", sep = '\t', header = TRUE)
@@ -110,12 +121,15 @@ forme<-function(x,v){
 AlphaDF<-rbind(
   forme(dcb,"dcb"),
   forme(dcf,"dcf"),
+  forme(dcs,"dcs"),
   
   forme(ocb,"ocb"),
   forme(ocf,"ocf"),
+  forme(ocs,"ocs"),
   
   forme(vvb,"vvb"),
-  forme(vvf,"vvf")
+  forme(vvf,"vvf"),
+  forme(vvs,"vvs")
 )
 
 AlphaDF$Pipeline<-paste(AlphaDF$Pipeline, AlphaDF$MaxMin,"")
@@ -125,12 +139,14 @@ AlphaDF$Pipeline[AlphaDF$Pipeline=="v v "]<-"VTAM"
 
 AlphaDF$Dataset[AlphaDF$Dataset=="b"]<-"Bat"
 AlphaDF$Dataset[AlphaDF$Dataset=="f"]<-"Fish"
+AlphaDF$Dataset[AlphaDF$Dataset=="s"]<-"Shark"
 
 #-------------------------------- boxplot
 AlphaDF$Pipeline=factor(AlphaDF$Pipeline, levels=c("VTAM", "DALU", "OBIbaR"))
 title = "Comparison of ASV richnesses"
 ylab = "ASV richness"
 label_font_size = 11
+#ylim_max = 400
 ylim_max = 120
 stat_label_y = 110
 p = ggplot(AlphaDF, aes(x=Pipeline, y=Alpha, fill=Pipeline))
@@ -188,12 +204,15 @@ Beta<-function(x,v){
 BetaDF<-rbind(
   Beta(dcb,"dcb"),
   Beta(dcf,"dcf"),
+  Beta(dcs,"dcs"),
   
   Beta(ocb,"ocb"),
   Beta(ocf,"ocf"),
+  Beta(ocs,"ocs"),
   
   Beta(vvb,"vvb"),
-  Beta(vvf,"vvf")
+  Beta(vvf,"vvf"),
+  Beta(vvs,"vvs")
 )
 
 BetaDF$Pipeline<-paste(BetaDF$Filtering, BetaDF$MaxMin,"")
@@ -203,9 +222,10 @@ BetaDF$Pipeline[BetaDF$Pipeline=="v v "]<-"VTAM"
 
 BetaDF$Dataset[BetaDF$Dataset=="b"]<-"Bat"
 BetaDF$Dataset[BetaDF$Dataset=="f"]<-"Fish"
+BetaDF$Dataset[BetaDF$Dataset=="s"]<-"Shark"
 
 
-##Dimension intra vs inter secies 
+##Dimension intra vs inter species 
 BetaDF<-merge(BetaDF,species,by.x="c1",by.y="Sample.ID",all.x=TRUE)
 BetaDF<-merge(BetaDF,species,by.x="c2",by.y="Sample.ID",all.x=TRUE)
 
@@ -215,6 +235,7 @@ BetaDF<-BetaDF %>%
     Host_species.x == Host_species.y, "Intra-Species", "Inter-Species"))
   
 BetaDF$comparison[BetaDF$Dataset=="Fish"]<-"Intra-Species"
+BetaDF$comparison[BetaDF$Dataset=="Shark"]<-"Intra-Species"
 
 BetaDF<-subset(BetaDF,BetaDF$Host_species.x!="NU" & BetaDF$Host_species.y!="NU"  |  (is.na(BetaDF$Host_species.x) & is.na(BetaDF$Host_species.y)))  #####removing pairwise comparison with at least one NU specimens
 
@@ -223,11 +244,12 @@ BetaDF$Panel<-paste(BetaDF$Dataset,BetaDF$comparison,sep=" ")
 
 #-------------------------------- boxplot
 BetaDF$Pipeline=factor(BetaDF$Pipeline, levels=c("VTAM", "DALU", "OBIbaR"))
-BetaDF$Panel=factor(BetaDF$Panel, levels=c("Bat Inter-Species", "Bat Intra-Species", "Fish Intra-Species"))
+BetaDF$Panel=factor(BetaDF$Panel, levels=c("Bat Inter-Species", "Bat Intra-Species", "Fish Intra-Species", "Shark Intra-Species"))
 title = "Comparison of Beta diversities"
 ylab = "Beta diversity"
 xlab = "Pipelines"
 label_font_size = 11
+text_font_size = 9
 ylim_max = 1.25
 p = ggplot(BetaDF, aes(x=Pipeline, y=distance, fill=Pipeline))
 
@@ -245,7 +267,8 @@ p = p + theme(legend.position = "None")
 p = p + theme(panel.grid.major.x = element_blank())
 p = p + theme(plot.title = element_text(size=label_font_size))
 p = p + theme(plot.title = element_text(size = label_font_size, hjust = 0.5))
-p = p + theme(strip.text.x = element_text(size = label_font_size))
+#p = p + theme(strip.text.x = element_text(size = label_font_size))
+p = p + theme(strip.text.x = element_text(size = text_font_size))
 p = p + ylab(ylab)
 p = p + ylim(0, ylim_max)
 p = p + theme(strip.background = element_rect(fill = "black"))
@@ -257,7 +280,7 @@ p = p + stat_compare_means(method = "t.test", comparisons = my_comparisons, labe
 #p
 
 #dir.create("out", showWarnings = F)
-ggsave(bxplt_betadiversity_path, width = 12, height = 12, units = "cm")
+ggsave(bxplt_betadiversity_path, width = 15, height = 12, units = "cm")
 
 if(0){
 ##### Pairwise tests 28/09/2022

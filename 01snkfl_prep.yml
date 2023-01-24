@@ -4,6 +4,10 @@ public_data_dir = config['public_data_dir']
 process_data_dir = config['process_data_dir']
 min_readcount = config['min_readcount']
 outdir = config['outdir']
+data_bat = config['data_bat']
+data_fish = config['data_fish']
+data_shark = config['data_shark']
+
 
 fish_fastq_lst = ['MFZR1_S4_L001_R1_001.fastq', 'MFZR1_S4_L001_R2_001.fastq', 'MFZR2_S5_L001_R1_001.fastq', 'MFZR2_S5_L001_R2_001.fastq', 'MFZR3_S6_L001_R1_001.fastq', 'MFZR3_S6_L001_R2_001.fastq', 'ZFZR1_S1_L001_R1_001.fastq', 'ZFZR1_S1_L001_R2_001.fastq', 'ZFZR2_S2_L001_R1_001.fastq', 'ZFZR2_S2_L001_R2_001.fastq', 'ZFZR3_S3_L001_R1_001.fastq', 'ZFZR3_S3_L001_R2_001.fastq']
 fish_tgz_lst = ['62829', '62831', '62833', '62835', '62837', '62839', '62841', '62843', '62845', '62847', '62849', '62851']
@@ -12,6 +16,9 @@ fish_dic = dict(zip(fish_fastq_lst, fish_tgz_lst))
 bat_zip_lst = ['64342', '64342', '64341', '64340', '64339']
 bat_fastq_lst = ['JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'JSTR00932-0201ter_S1368_L001_R2_001.fastq.gz', 'T-Fter_S859_L001_R2_001.fastq.gz', 'DPEF00808fcter_S1407_L001_R2_001.fastq.gz', 'DPEF00391fcter_S892_L001_R2_001.fastq.gz']
 bat_dic = dict(zip(bat_fastq_lst, bat_zip_lst))
+
+shark_fastq_lst = ['reqpol_R1_fw.fastq', 'reqpol_R1_rv.fastq', 'reqpol_R2_fw.fastq', 'reqpol_R2_rv.fastq', 'reqpol_R3_fw.fastq', 'reqpol_R3_rv.fastq']
+
 
 if "container" in config:
     container: config['container']
@@ -23,47 +30,15 @@ rule prep_all:
         os.path.join(outdir, "vtam_bat/fasta/sortedinfo.tsv"),
         os.path.join(outdir, "vtam_fish/sorted_mfzr/sortedinfo.tsv"),
         os.path.join(outdir, "vtam_fish/sorted_zfzr/sortedinfo.tsv"),
+        os.path.join(outdir, "vtam_shark/sorted/sortedinfo.tsv"),
+        os.path.join(outdir, "dalu_shark/fastq/16S1-Tneg_pcr_REQPOL-3_fw.fastq.gz"),
 
 include: 'snakefiles/snkfl_prep_bat.yml'
 include: 'snakefiles/snkfl_prep_fish_vtam.yml'
 include: 'snakefiles/snkfl_prep_fish_dalu.yml'
+include: 'snakefiles/snkfl_prep_shark_vtam.yml'
+include: 'snakefiles/snkfl_prep_shark_dalu.yml'
 
-include: 'snakefiles/snkfl_dwnld_bat.yml'
-include: 'snakefiles/snkfl_dwnld_fish.yml'
 
-rule gunzip_taxonomy:
-    input:
-        gz=os.path.join(process_data_dir, "osf.io/uzk87/taxonomy.tsv.gz"),
-    output:
-        tsv=os.path.join(outdir, "vtam_db/taxonomy.tsv"),
-    shell:
-        """gunzip -c {input.gz} > {output.tsv}"""
 
-rule wget_taxonomy:
-    output:
-        gz=os.path.join(process_data_dir, "osf.io/uzk87/taxonomy.tsv.gz"),
-    params:
-        url="osf.io/uzk87/download",
-        public_data_dir_path=public_data_dir,
-    shell:
-        "wget -nc -q -r {params.url} -O {output.gz}"
-        
-        
-
-rule untar_blast_db:
-    input:
-        gz=os.path.join(process_data_dir, "osf.io/kw9ms/coi_blast_db_20200420.tar.gz"),
-    output:
-        untar=os.path.join(outdir, "vtam_db/coi_blast_db/coi_blast_db_20200420.nsq"),
-    shell:
-        "tar -zxvf {input.gz} -C $(dirname {output.untar})"
-
-rule wget_blast_db:
-    output:
-        gz=os.path.join(process_data_dir, "osf.io/kw9ms/coi_blast_db_20200420.tar.gz"),
-    params:
-        url="osf.io/kw9ms/download",
-        public_data_dir_path=public_data_dir,
-    shell:
-        "wget -nc -q -r {params.url} -O {output.gz}"
 
